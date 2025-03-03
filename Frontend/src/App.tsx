@@ -1,12 +1,13 @@
-
-
+import HomeSection from "./component/Homesection"
+import Navbar from "./component/Navbar"
 
 function App() {
-  
-
   return (
-    <div className="bg-green-300 ">
-      <h1 className="text-red-500">Hello</h1>
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">
+        <HomeSection />
+      </main>
     </div>
   )
 }
