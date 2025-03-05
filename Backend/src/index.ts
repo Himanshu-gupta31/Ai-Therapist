@@ -1,8 +1,14 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"//used so that we can access the cookie of the user and also store them in their browser
+
 const app=express();
 
+const PORT=process.env.PORT || 8000
+
+app.listen(PORT,()=>{
+    console.log(`Server is running at Port ${PORT}`)
+})
 //For using middleware we you app.use
 app.use(cors({
     origin:process.env.CORS_ORIGIN
@@ -15,5 +21,13 @@ app.use(express.urlencoded({
     limit:"16kb"
 }));//used to decode the url 
 app.use(cookieParser());
+
+
+//Routes Import
+import userRouter from "./routes/userRouter"
+
+
+//Router Declaration
+app.use("api/v1/users",userRouter)
 
 export {app}
