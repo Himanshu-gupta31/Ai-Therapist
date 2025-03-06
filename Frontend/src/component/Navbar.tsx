@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import ScreenLife from "/ScreenLife.png"
 function Navbar(){
     return (
@@ -16,8 +17,12 @@ function Navbar(){
                 </a>
             </div>
             <div className="flex">
+                <Link to="/signup">
                 <button className="bg-orange-200 p-2 rounded-xl mr-2 hover:bg-amber-200">Sign Up </button>
+                </Link>
+                <Link to="/signin">
                 <button className="bg-orange-200 p-2 rounded-xl hover:bg-amber-200">Sign In </button>
+                </Link>
             </div>
             </div>
           

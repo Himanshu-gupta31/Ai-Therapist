@@ -22,12 +22,15 @@ app.use(express.urlencoded({
 }));//used to decode the url 
 app.use(cookieParser());
 
-
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}));
 //Routes Import
 import userRouter from "./routes/userRouter"
 
 
 //Router Declaration
-app.use("api/v1/users",userRouter)
+app.use("/api/v1/users",userRouter)
 
 export {app}

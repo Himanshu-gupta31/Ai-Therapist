@@ -44,7 +44,11 @@ export const signup = async (req: Request, res: Response) => {
           expiresIn: "1d"
         }
       );
-      res.status(201).json({ message: "User registered successfully", user: newUser, token: token });
+      const option={
+        https:true,
+        secure:true,
+      }
+      res.status(201).json({ message: "User registered successfully", user: newUser}).cookie(token,option);
     } catch (error) {
       console.error("Signup error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -82,10 +86,13 @@ export const signup = async (req: Request, res: Response) => {
           expiresIn: "1d"
         }
       );
+      const option={
+        https:true,
+        secure:true,
+      }
       res.status(200).json({
         message: "Login successful",
-        token: token
-      });
+    }).cookie(token,option);
     } catch (error) {
       console.error("Signin error:", error);
       res.status(500).json({ message: "Internal server error" });
