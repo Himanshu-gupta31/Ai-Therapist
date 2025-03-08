@@ -1,36 +1,38 @@
-import express from "express"
-import cors from "cors"
-import cookieParser from "cookie-parser"//used so that we can access the cookie of the user and also store them in their browser
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 
-const app=express();
+// ✅ Load environment variables
+dotenv.config();
 
-const PORT=process.env.PORT || 8000
+const app = express();
+const PORT = process.env.PORT || 8000;
 
-app.listen(PORT,()=>{
-    console.log(`Server is running at Port ${PORT}`)
-})
-//For using middleware we you app.use
-app.use(cors({
-    origin:process.env.CORS_ORIGIN
-}));
-app.use(express.json({
-    limit:"20kb"
-}));//used to tell express that we can allowing to accept json from the user
-app.use(express.urlencoded({
-    extended:true,
-    limit:"16kb"
-}));//used to decode the url 
+// ✅ Apply CORS once and correctly
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true, // Important for cookies, authorization headers
+    methods: "GET,POST,PUT,DELETE",
+  })
+);
+
+app.use(express.json({ limit: "20kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
-}));
-//Routes Import
-import userRouter from "./routes/userRouter"
+// Debugging to ensure CORS_ORIGIN is loaded correctly
+console.log(`CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
 
+// Routes Import
+import userRouter from "./routes/userRouter";
 
-//Router Declaration
-app.use("/api/v1/users",userRouter)
+// Router Declaration
+app.use("/api/v1/users", userRouter);
 
-export {app}
+app.listen(PORT, () => {
+  console.log(`Server is running at Port ${PORT}`);
+});
+
+export { app };
