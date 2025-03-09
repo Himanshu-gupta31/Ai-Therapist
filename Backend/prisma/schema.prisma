@@ -18,6 +18,7 @@ model User {
   email     String   @unique
   password  String
   name      String?  // Optional: add name field
+  token     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   authType String?

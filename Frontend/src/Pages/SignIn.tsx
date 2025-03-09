@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { newRequest } from "../utils/request" // Import axios instance
+import GoogleLogin from  "../component/GoogleLogin"
 
 function SignIn() {
   const [email, setEmail] = useState('')
@@ -66,6 +67,17 @@ function SignIn() {
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
+          
+          <div className="flex items-center my-4">
+            <div className="flex-grow h-px bg-gray-300"></div>
+            <span className="px-3 text-gray-500 text-sm">OR</span>
+            <div className="flex-grow h-px bg-gray-300"></div>
+          </div>
+          
+          <div className="flex justify-center">
+            <GoogleLogin />
+          </div>
+          
           <div className="text-center mt-4">
             <p>
               Don't have an account?{' '}
