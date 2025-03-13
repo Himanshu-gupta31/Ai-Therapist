@@ -50,7 +50,7 @@ export default function ScreenTimeCalculator() {
   return (
     <div className="min-h-screen bg-white p-4 md:p-8">
       <div className="mx-auto max-w-3xl">
-        <Card className="border-yellow-300 shadow-lg">
+        <Card className="border-yellow-300 shadow-lg bg-yellow-50">
           <CardHeader className="bg-yellow-50">
             <CardTitle className="text-2xl md:text-3xl text-center text-yellow-800">Screen Time Calculator</CardTitle>
             <CardDescription className="text-center text-yellow-700">
@@ -103,6 +103,12 @@ export default function ScreenTimeCalculator() {
                     className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
                   >
                     {showSolutions ? "Hide Health Solutions" : "Show Health Solutions"}
+                  </Button>
+                  <Button
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-white my-4"
+                    
+                  >
+                    Show Personalised Solution
                   </Button>
 
                   {showSolutions && (

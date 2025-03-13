@@ -7,6 +7,12 @@ const JWT_SECRET = process.env.JWT_SECRET
 if(!JWT_SECRET){
     throw new Error("Jwt secret not found")
 }
+interface CustomRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+  };
+}
 export const signup = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
@@ -48,7 +54,8 @@ export const signup = async (req: Request, res: Response) => {
         https:true,
         secure:true,
       }
-      res.status(201).json({ message: "User registered successfully", user: newUser}).cookie(token,option);
+      res.cookie("token", token, option).status(201).json({ message: "User registered successfully", user: newUser, token });
+
     } catch (error) {
       console.error("Signup error:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -90,12 +97,28 @@ export const signup = async (req: Request, res: Response) => {
         https:true,
         secure:true,
       }
-      res.status(200).json({
+      res.cookie(token,option).status(200).json({
         message: "Login successful",
-    }).cookie(token,option);
+        token
+    })
     } catch (error) {
       console.error("Signin error:", error);
       res.status(500).json({ message: "Internal server error" });
+    }
+  };
+  export const logOut = async (req: CustomRequest, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      // Clear the token cookie
+      res.clearCookie("token");
+      
+      return res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   };
   
