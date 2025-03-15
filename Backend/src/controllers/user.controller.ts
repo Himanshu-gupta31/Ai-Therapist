@@ -54,7 +54,7 @@ export const signup = async (req: Request, res: Response) => {
         https:true,
         secure:true,
       }
-      res.cookie("token", token, option).status(201).json({ message: "User registered successfully", user: newUser, token });
+      res.cookie(token, option).status(201).json({ message: "User registered successfully", user: newUser, token });
 
     } catch (error) {
       console.error("Signup error:", error);
@@ -106,19 +106,19 @@ export const signup = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
-  export const logOut = async (req: CustomRequest, res: Response) => {
+  export const logOut = async (req: CustomRequest, res: Response): Promise<void> => {
     try {
       if (!req.user) {
-        return res.status(401).json({ message: "Not authenticated" });
+        res.status(401).json({ message: "Not authenticated" });
+        return;
       }
       
       // Clear the token cookie
       res.clearCookie("token");
       
-      return res.status(200).json({ message: "Logged out successfully" });
+      res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
       console.error("Logout error:", error);
-      return res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   };
-  

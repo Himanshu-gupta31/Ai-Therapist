@@ -6,6 +6,7 @@ import SignUp from "./Pages/SignUp"
 import NotFound from "./component/NotFound"
 import {GoogleOAuthProvider} from "@react-oauth/google"
 import ScreenTimeCalculator from "./component/ScreenTimeCalculator"
+import ScreenTimeAssistant from "./component/ScreenTimeAssistant"
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/signup" element={<SignUp/>}/>
           <Route path="*" element={<NotFound/>}/>
           <Route path="screentime" element={<ScreenTimeCalculator/>}/>
+          <Route path="/screenassistant" element={<ScreenTimeAssistant/>}/>
         </Routes>
       </div>
     </GoogleOAuthProvider>

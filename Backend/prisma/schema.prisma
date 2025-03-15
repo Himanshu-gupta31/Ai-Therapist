@@ -14,13 +14,21 @@ datasource db {
 }
 
 model User {
-   id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?  // Optional: add name field
-  token     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  authType String?
-  screenTime  Int? @default(0)
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  name       String? // Optional: add name field
+  token      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  authType   String?
+  screenTime Int?     @default(0)
+  habits     Habit[]
+}
+
+model Habit {
+  id        String @id @default(uuid())
+  habitName String
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

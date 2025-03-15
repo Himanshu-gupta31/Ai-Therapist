@@ -8,6 +8,6 @@ const router=Router();
 router.route("/signup").post(signup)
 router.route("/signin").post(signin)
 router.route("/google").get(googleLogin)
-
+router.route("/logout").post(logOut)
 
 export default router
