@@ -23,10 +23,8 @@ const googleLogin = async (req: Request, res: Response) => {
     const googleRes = await oauth2client.getToken(code as string);
     oauth2client.setCredentials(googleRes.tokens);
 
-    // Fixed typo in access_token parameter
-    const userRes = await axios.get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
-    );
+    // Fixed typo in access_token parameter. you should use native fetch function in js not axios here
+    const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`);
     
     const { email } = userRes.data;
     
