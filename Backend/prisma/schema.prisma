@@ -30,5 +30,6 @@ model Habit {
   id        String @id @default(uuid())
   habitName String
   userId    String
+  description String
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

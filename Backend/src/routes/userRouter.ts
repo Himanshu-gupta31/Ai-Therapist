@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {logOut, signin, signup}  from "../controllers/user.controller";
 import googleLogin from "../controllers/authController";
-import { VerifyJWT } from "../middlewares/auth.middleware";
 
 const router=Router();
 
