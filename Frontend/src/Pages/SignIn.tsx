@@ -17,7 +17,7 @@ function SignIn() {
         email: email,
         password: password
       });
-      navigate("/") // Redirect after successful login
+      navigate("/screentime") // Redirect after successful login
     } catch (error) {
       console.error("Error signing in", error);
       setError("Invalid credentials, Sign-in Failed");

@@ -17,7 +17,7 @@ function SignUp() {
         email: email,
         password: password
       })
-      navigate("/")
+      navigate("/screentime")
     } catch (error: any) {
       console.error("Error signing up!", error);
       if (error.response?.data?.message) {

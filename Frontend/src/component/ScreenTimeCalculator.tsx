@@ -6,6 +6,7 @@ import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/accordion"
 import { AlertCircle, Clock, Eye } from "lucide-react"
+import { Link } from "react-router-dom"
 
 export default function ScreenTimeCalculator() {
   const [screenTime, setScreenTime] = useState<string>("")
@@ -104,12 +105,14 @@ export default function ScreenTimeCalculator() {
                   >
                     {showSolutions ? "Hide Health Solutions" : "Show Health Solutions"}
                   </Button>
+                  <Link to="/screenassistant">
                   <Button
                     className="w-full bg-yellow-500 hover:bg-yellow-600 text-white my-4"
                     
                   >
                     Show Personalised Solution
                   </Button>
+                  </Link>
 
                   {showSolutions && (
                     <div className="mt-4 rounded-lg border border-yellow-200 bg-white">

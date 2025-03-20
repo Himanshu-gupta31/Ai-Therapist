@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 interface Habit{
     habitName:string
     description:string
-}
+} 
 function Habit(){
     const [habits,setHabit]=useState<Habit[]>([])
     const [habitName,setHabitName]=useState("")
@@ -18,7 +18,7 @@ function Habit(){
 
     useEffect(()=>{
         fetchHabits();
-    })
+    },[])
     const fetchHabits=async()=>{
         try {
             setLoading(true)
@@ -37,7 +37,7 @@ function Habit(){
     const addHabitHandler=async()=>{
         try {
             setShowModal(true)
-            const response=await axios.post("/habit/addHabit",
+            const response=await newRequest.post("/habit/addHabit",
                 {
                    habitName:habitName,
                    description:description 
@@ -127,11 +127,11 @@ function Habit(){
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Description
                                 </label>
-                                <textarea
+                                <input
                                 value={description}
                                 placeholder="Enter description"
                                 onChange={(e)=>setDescription(e.target.value)}
-                                rows={2}
+                                className="w-full px-3 py-2 border border-gray-200 rounded-md"
                                 />
                             </div>
                             <div className="flex justify-end pt-4">
