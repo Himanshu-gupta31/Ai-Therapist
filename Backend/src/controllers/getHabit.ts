@@ -15,6 +15,7 @@ export const getHabit=async(req:Request,res:Response)=>{
             select:{
                 habitName:true,
                 description:true,
+                id:true
 
             }
         })
