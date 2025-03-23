@@ -23,7 +23,7 @@ interface DecodedToken extends JwtPayload {
 
 export const VerifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
    
-    const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "") || req.query?.token;
+    const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "") 
     
 
 

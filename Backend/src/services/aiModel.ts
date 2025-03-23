@@ -39,7 +39,7 @@ const {
         {
           role: "user",
           parts: [
-            {text: "9 hrs and i am a student\n"},
+            {text: " hrs and i am a student\n"},
           ],
         },
         {

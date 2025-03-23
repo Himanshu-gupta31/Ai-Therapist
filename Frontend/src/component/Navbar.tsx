@@ -6,7 +6,7 @@ function Navbar(){
             <div className="flex w-full justify-between items-center">
             <div className="flex justify-center items-center">
                 <img src={ScreenLife} className="w-[6rem] h-[5rem]"/>
-                <h1 className="text-black font-bold text-xl">ScreenLife</h1>
+                <h1 className="text-black font-bold text-xl">Fix Me</h1>
             </div>
             <div className="flex justify-center items-center">
                 <p className="text-yellow-500 text-lg font-semi-bold mr-2 cursor-pointer hover:underline hover:text-amber-700">How It Works</p>
