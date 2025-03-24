@@ -63,7 +63,7 @@ function Habit() {
         habitName: habitName,
         description: description,
       });
-
+      console.log(response)
       setHabitName("");
       setDescription("");
       setShowModal(false);

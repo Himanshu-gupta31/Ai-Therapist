@@ -8,7 +8,7 @@ export const getHabit=async(req:Request,res:Response)=>{
             res.status(401).json({ message: "Unauthorized access" });
             return;
         }
-        console.log("Usrr1:",user.id)
+        
         const getHabit=await prisma.habit.findMany({
             where:{
                 userId:user.id

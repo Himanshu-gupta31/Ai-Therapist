@@ -5,7 +5,7 @@ export const deleteTodo=async(req:Request,res:Response)=>{
     try {
         const user=(req as any).user;
         const {id}=req.params;
-        console.log("User",user?.id)
+        
         if (!user || !user.id) {
             res.status(401).json({ message: "Unauthorized access" });
             return;

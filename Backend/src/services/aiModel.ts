@@ -1,55 +1,56 @@
 const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-  } = require("@google/generative-ai");
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} = require("@google/generative-ai");
+
+const apiKey = process.env.GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash",
+  systemInstruction: `
+  You are a friendly AI assistant who specializes in helping users reduce their screen time.
   
-  const apiKey = process.env.GEMINI_API_KEY;
-  const genAI = new GoogleGenerativeAI(apiKey);
+  **Guidelines:**
   
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    systemInstruction: "Ask the user for their daily screen time in hours. Once they provide a number, ask whether they are a student or a working professional. Based on their response, give them a concise, practical solution (around 150 words) with actionable methods to reduce screen time. Include a simple table outlining key strategies and their benefits. Keep the response clear, to the point, and easy to follow.",
-  });
+  1. ONLY respond to questions related to screen time, screen time reduction, or related habits.
+  2. If the question is unrelated, politely say: "I'm here to help you reduce your screen time. Could you ask me something about your screen habits?"
+  3. Always start by asking: "How many hours per day do you usually spend on screens?"
+  4. After getting the number, ask: "Are you a student or a working professional?"
+  5. Based on their role:
+     - Provide practical, actionable advice (approx. 150 words) to reduce screen time.
+     - Format tips as bullet points or numbers, ensuring each point starts on a **new line**.
+  6. Include a simple table summarizing key strategies and their benefits.
+  7. **End every response with:** "To improve, please add a habit to reduce your screen time in the next section."
   
-  const generationConfig = {
-    temperature: 1,
-    topP: 0.95,
-    topK: 40,
-    maxOutputTokens: 8192,
-    responseMimeType: "text/plain",
-  };
+  Keep your language friendly, concise, and easy to follow.
+  `,
   
-  
-     export const chatSession = model.startChat({
-      generationConfig,
-      history: [
+});
+
+const generationConfig = {
+  temperature: 1,
+  topP: 0.95,
+  topK: 40,
+  maxOutputTokens: 8192,
+  responseMimeType: "text/plain",
+};
+
+export const chatSession = model.startChat({
+  generationConfig,
+  history: [
+    {
+      role: "user",
+      parts: [{ text: "Hey\n" }],
+    },
+    {
+      role: "model",
+      parts: [
         {
-          role: "user",
-          parts: [
-            {text: "Hey\n"},
-          ],
-        },
-        {
-          role: "model",
-          parts: [
-            {text: "Hi there! To help you reduce your screen time, could you first tell me approximately how many hours a day you spend looking at screens? And are you a student or a working professional?\n"},
-          ],
-        },
-        {
-          role: "user",
-          parts: [
-            {text: " hrs and i am a student\n"},
-          ],
-        },
-        {
-          role: "model",
-          parts: [
-            {text: "Okay, 9 hours is quite a lot! As a student, managing screen time is crucial for balancing studies, social life, and well-being. Given your screen time, aim for at least a 2-hour reduction daily. Start by allocating specific \"screen-free\" study blocks using the Pomodoro Technique (25-minute focus, 5-minute break - no screens during breaks!). Replace screen-based entertainment with physical activities or hobbies during leisure time. Use website blockers on your computer during study hours, and set app limits on your phone. Wind down an hour before bed without any screens to improve sleep quality. Small consistent changes will make a big difference.\n\nHere's a quick summary:\n\n| Strategy               | Benefit                                       |\n|------------------------|-----------------------------------------------|\n| Screen-free Study Blocks | Improved focus & retention                     |\n| App Limits & Blockers    | Reduced temptation & minimized distractions   |\n| Screen-Free Hobbies      | Enhanced well-being & improved sleep quality |\n"},
-          ],
+          text: "Hi there! How many hours per day do you usually spend on screens?",
         },
       ],
-    });
-  
-
-  
+    },
+  ],
+});
