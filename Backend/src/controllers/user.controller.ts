@@ -117,3 +117,26 @@ export const logOut = async (req: CustomRequest, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const VerifyUser=async(req:Request,res:Response)=>{
+       try {
+        const user=(req as any).user;
+        if(!user || !user.id){
+          res.status(400).json({message:"Unauthorized Access"})
+        }
+        const verifyUser=await prisma.user.findUnique({
+          where:{
+            id:user?.id
+          },
+          select:{
+            email:true,
+            id:true
+          }
+        })
+        res.status(200)
+        .json({verifyUser})
+       } catch (error) {
+        console.error("Error verifying the user",error)
+        res.status(500).json({ message: "Internal server error" });
+       }
+}

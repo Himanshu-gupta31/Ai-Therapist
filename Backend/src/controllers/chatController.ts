@@ -13,9 +13,9 @@ export const handleChat = async (req: Request, res: Response) => {
     const result = await chatSession.sendMessage(message);
 
     // Correct way to get text
-    console.log(result)
+    // console.log(result)
     const responseText = await result.response.text();
-    console.log(responseText)
+    // console.log(responseText)
 
     res.status(200).json({ response: responseText });
   } catch (error) {

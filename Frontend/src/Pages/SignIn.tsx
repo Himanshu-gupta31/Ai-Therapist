@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { newRequest } from "../utils/request" // Import axios instance
 import GoogleLogin from  "../component/GoogleLogin"
+import axios from 'axios'
 
 function SignIn() {
   const [email, setEmail] = useState('')
@@ -13,7 +13,7 @@ function SignIn() {
   const SignIn = async () => {
     setLoading(true)
     try {
-      await newRequest.post("/users/signin", {
+      await axios.post("http://localhost:8000/api/v1/users/signin", {
         email: email,
         password: password
       });
