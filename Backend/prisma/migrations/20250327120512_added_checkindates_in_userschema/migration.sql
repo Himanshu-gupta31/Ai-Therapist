@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "checkInDates" TIMESTAMP(3)[] DEFAULT ARRAY[]::TIMESTAMP(3)[];

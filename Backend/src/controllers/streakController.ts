@@ -20,17 +20,23 @@ export const updatedStreak=async(req:Request,res:Response)=>{
 
           const now=new Date();
           const todayUTC=now.toISOString().split("T")[0];
-          const lastCheckInUTC=checkuser.lastCheckIn ? user.lastCheckIn.toISOString().split("T")[0] : null;
+          const lastCheckInUTC = checkuser.lastCheckIn ? new Date(checkuser.lastCheckIn).toISOString().split("T")[0] : null;
 
           let updatedStreak=checkuser.streak
           let updatedLongestStreak=checkuser.longestStreak
 
-          if (lastCheckInUTC === todayUTC) {
+          if (!lastCheckInUTC) {
+            updatedStreak = 1;
+          } else if (lastCheckInUTC === todayUTC) {
              res.status(200).json({
               message: "Streak already updated today.",
               streak: updatedStreak,
               longestStreak: updatedLongestStreak,
             });
+          } else if (new Date(lastCheckInUTC) < new Date(todayUTC)) {
+            updatedStreak = 1; 
+          } else {
+            updatedStreak += 1;
           }
 
           if(lastCheckInUTC && new Date(lastCheckInUTC) < new Date(todayUTC)){
@@ -47,7 +53,8 @@ export const updatedStreak=async(req:Request,res:Response)=>{
             data:{
                 streak:updatedStreak,
                 longestStreak:updatedLongestStreak,
-                lastCheckIn:now
+                lastCheckIn:now,
+                checkInDates:{push:todayUTC}
             }
           })
           res.status(200).json({
@@ -74,13 +81,26 @@ export const getStreak=async(req:Request,res:Response)=>{
       id:user.id
     },select:{
       longestStreak:true,
-      streak:true
+      streak:true,
+      lastCheckIn:true,
+      checkInDates:true
     }
   });
   if(!findUser){
     res.status(401).json({message:"User not found"})
   }
-  res.status(200).json({findUser})
+  const formattedUser = {
+    longestStreak: findUser?.longestStreak,
+    streak: findUser?.streak,
+    lastCheckIn: findUser?.lastCheckIn
+      ? new Date(findUser?.lastCheckIn).toISOString().split("T")[0]
+      : null,
+    checkInDates: findUser?.checkInDates.map((date) =>
+      new Date(date).toISOString().split("T")[0]
+    ),
+  };
+  
+  res.status(200).json({formattedUser})
   } catch (error) {
     res.status(500).json({ message: "Error fetching streak", error });
     

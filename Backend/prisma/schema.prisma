@@ -27,6 +27,7 @@ model User {
   streak     Int      @default(0)
   longestStreak Int   @default(0)
   lastCheckIn  DateTime?
+  checkInDates  String[] @default([])
 }
 
 model Habit {

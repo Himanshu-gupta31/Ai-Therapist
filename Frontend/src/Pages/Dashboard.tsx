@@ -8,13 +8,18 @@ function Dashboard() {
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [complete, setComplete] = useState(false);
+  const [lastCheckedIn,setLastCheckedIn]=useState("")
 
   useEffect(() => {
     const fetchStreak = async () => {
       try {
-        const response = await newRequest.get("http://localhost:8000/api/v1/users/streak");
-        setStreak(response.data.streak);
-        setLongestStreak(response.data.longestStreak);
+        const response = await newRequest.get("/users/streak");
+        setStreak(response.data.formattedUser.streak);
+        setLongestStreak(response.data.formattedUser.longestStreak);
+        setLastCheckedIn(response.data.formattedUser.lastCheckIn);
+
+        
+        
       } catch (error) {
         console.error("Error fetching streak:", error);
       }
@@ -22,10 +27,14 @@ function Dashboard() {
 
     fetchStreak();
   }, []);
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setComplete(today === lastCheckedIn);
+  }, [lastCheckedIn]); 
 
   const handleCompletion = async () => {
     try {
-      const response = await newRequest.post("http://localhost:8000/api/v1/users/checkin");
+      const response = await newRequest.post("/users/checkin");
       setStreak(response.data.streak);
       setLongestStreak(response.data.longestStreak);
       setComplete(true);

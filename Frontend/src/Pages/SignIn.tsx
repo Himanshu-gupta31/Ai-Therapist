@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GoogleLogin from  "../component/GoogleLogin"
-import axios from 'axios'
+import { newRequest } from '@/utils/request'
 
 function SignIn() {
   const [email, setEmail] = useState('')
@@ -13,7 +13,7 @@ function SignIn() {
   const SignIn = async () => {
     setLoading(true)
     try {
-      await axios.post("http://localhost:8000/api/v1/users/signin", {
+      await newRequest.post("/users/signin", {
         email: email,
         password: password
       });
@@ -29,7 +29,7 @@ function SignIn() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     SignIn()
-    console.log('Sign In Attempt', { email, password })
+    
   }
 
   return (
