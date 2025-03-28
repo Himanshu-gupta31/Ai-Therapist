@@ -1,4 +1,3 @@
-
 import GitStreak from "@/component/GitStreak";
 import { Calendar, CircleCheckBig, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -8,7 +7,8 @@ function Dashboard() {
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [complete, setComplete] = useState(false);
-  const [lastCheckedIn,setLastCheckedIn]=useState("")
+  const [lastCheckedIn, setLastCheckedIn] = useState("");
+  const [checkInDates, setCheckInDates] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchStreak = async () => {
@@ -17,9 +17,7 @@ function Dashboard() {
         setStreak(response.data.formattedUser.streak);
         setLongestStreak(response.data.formattedUser.longestStreak);
         setLastCheckedIn(response.data.formattedUser.lastCheckIn);
-
-        
-        
+        setCheckInDates(response.data.formattedUser.checkInDates || []);
       } catch (error) {
         console.error("Error fetching streak:", error);
       }
@@ -27,10 +25,11 @@ function Dashboard() {
 
     fetchStreak();
   }, []);
+
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setComplete(today === lastCheckedIn);
-  }, [lastCheckedIn]); 
+  }, [lastCheckedIn]);
 
   const handleCompletion = async () => {
     try {
@@ -38,6 +37,7 @@ function Dashboard() {
       setStreak(response.data.streak);
       setLongestStreak(response.data.longestStreak);
       setComplete(true);
+      setCheckInDates((prev) => [...prev, new Date().toISOString().split("T")[0]]);
     } catch (error) {
       console.error("Error updating streak:", error);
     }
@@ -45,9 +45,12 @@ function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-amber-50/50">
-      <h1 className="text-2xl font-bold text-amber-900 mb-8 text-center">Habit Streak Dashboard</h1>
+      <h1 className="text-2xl font-bold text-amber-900 mb-8 text-center">
+        Habit Streak Dashboard
+      </h1>
 
       <div className="flex flex-col md:flex-row gap-6 justify-center mb-10">
+        {/* Current Streak */}
         <div className="border border-amber-300 bg-white w-full md:w-[18rem] rounded-lg flex p-5 flex-col justify-around shadow-md hover:shadow-lg transition-shadow">
           <p className="font-medium text-sm text-amber-700 mb-3">Current Streak</p>
           <div className="flex items-center gap-3">
@@ -58,6 +61,7 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Longest Streak */}
         <div className="border border-amber-300 bg-white w-full md:w-[18rem] rounded-lg flex p-5 flex-col justify-around shadow-md hover:shadow-lg transition-shadow">
           <p className="font-medium text-sm text-amber-700 mb-3">Longest Streak</p>
           <div className="flex items-center gap-3">
@@ -68,6 +72,7 @@ function Dashboard() {
           </div>
         </div>
 
+        {/* Today's Check-in */}
         <div className={`border ${complete ? "border-amber-400 bg-amber-50" : "border-amber-300 bg-white"} w-full md:w-[18rem] rounded-lg flex p-5 flex-col justify-around shadow-md hover:shadow-lg transition-all`}>
           <p className="font-medium text-sm text-amber-700 mb-3">Today's Check-in</p>
           <div className="flex items-center">
@@ -85,9 +90,10 @@ function Dashboard() {
         </div>
       </div>
 
+      {/* GitHub-style Streak Grid */}
       <div className="bg-white border border-amber-200 rounded-lg p-6 shadow-md">
         <h2 className="text-lg font-semibold text-amber-800 mb-4">Your Habit Streak</h2>
-        <GitStreak />
+        <GitStreak checkInDates={checkInDates} />
       </div>
     </div>
   );
