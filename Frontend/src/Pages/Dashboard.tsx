@@ -123,9 +123,9 @@ export default function Dashboard() {
           >
             <CardHeader className="pb-2">
               <CardDescription className="text-amber-700">Today's Check-in</CardDescription>
-              <div className="absolute top-4 right-4 bg-amber-100 p-2 rounded-full">
+              {/* <div className="absolute top-4 right-4 bg-amber-100 p-2 rounded-full">
                 <Calendar className="text-amber-500 w-5 h-5" />
-              </div>
+              </div> */}
             </CardHeader>
             <CardContent>
               {complete ? (

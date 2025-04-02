@@ -1,4 +1,3 @@
-"use client"
 
 import { Link, useNavigate } from "react-router-dom"
 import ScreenLife from "/ScreenLife.png"
@@ -9,9 +8,11 @@ import { Menu, X } from "lucide-react"
 function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
 
   const verifyUser = async () => {
+    setIsLoading(true)
     try {
       const response = await newRequest.get("/users/verify")
       if (response.status === 200) {
@@ -19,6 +20,9 @@ function Navbar() {
       }
     } catch (error) {
       setLoggedIn(false)
+      // Don't log the error here - it's expected when not logged in
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -26,16 +30,18 @@ function Navbar() {
     verifyUser()
   }, [])
 
+  // Separate useEffect for navigation after authentication status is known
   useEffect(() => {
-    if (loggedIn) {
-      navigate("/dashboard")
+    if (!isLoading && loggedIn) {
+      navigate("/screenassistant")
     }
-  },[])
+  }, [loggedIn, isLoading, navigate])
 
   const handleLogout = async () => {
     try {
       await newRequest.post("/users/logout")
       setLoggedIn(false)
+      navigate("/")
     } catch (error) {
       console.error("Logout failed:", error)
     }
@@ -55,7 +61,7 @@ function Navbar() {
             className="w-[4rem] h-[3.5rem] sm:w-[6rem] sm:h-[5rem]"
             alt="ScreenLife Logo"
           />
-          <h1 className="text-black font-bold text-lg sm:text-xl">Fix Me</h1>
+          <h1 className="text-black font-bold text-lg sm:text-xl">ScreenLife</h1>
         </div>
 
         {/* Mobile Menu Button */}
@@ -87,7 +93,9 @@ function Navbar() {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex">
-          {loggedIn ? (
+          {isLoading ? (
+            <span className="p-2">Loading...</span>
+          ) : loggedIn ? (
             <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600">
               Logout
             </button>
@@ -117,7 +125,9 @@ function Navbar() {
           </a>
 
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
-            {loggedIn ? (
+            {isLoading ? (
+              <span className="p-2">Loading...</span>
+            ) : loggedIn ? (
               <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 w-full sm:w-auto"
@@ -142,4 +152,3 @@ function Navbar() {
 }
 
 export default Navbar
-
