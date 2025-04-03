@@ -29,15 +29,15 @@ function Habit() {
       const response = await newRequest.delete(`/habit/deleteHabit/${habitId}`);
       console.log(response);
 
-      // Reset loading state
+      
       setDeleteLoading(null);
 
-      // Fetch updated habits from the server
+      
       fetchHabits();
     } catch (error) {
       setError("Failed to delete Habit");
       console.error("Error deleting habits:", error);
-      setDeleteLoading(null); // Reset loading state even on error
+      setDeleteLoading(null); 
     }
   };
   const fetchHabits = async () => {

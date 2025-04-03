@@ -1,15 +1,16 @@
-
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import ScreenLife from "/ScreenLife.png"
 import { useEffect, useState } from "react"
 import { newRequest } from "@/utils/request"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User } from "lucide-react"
 
 function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showProfileModal, setShowProfileModal] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const verifyUser = async () => {
     setIsLoading(true)
@@ -17,6 +18,8 @@ function Navbar() {
       const response = await newRequest.get("/users/verify")
       if (response.status === 200) {
         setLoggedIn(true)
+      } else {
+        setLoggedIn(false)
       }
     } catch (error) {
       setLoggedIn(false)
@@ -26,21 +29,16 @@ function Navbar() {
     }
   }
 
+  // Run verification on initial load and when location changes
   useEffect(() => {
     verifyUser()
-  }, [])
-
-  // Separate useEffect for navigation after authentication status is known
-  useEffect(() => {
-    if (!isLoading && loggedIn) {
-      navigate("/screenassistant")
-    }
-  }, [loggedIn, isLoading, navigate])
+  }, [location.pathname])
 
   const handleLogout = async () => {
     try {
       await newRequest.post("/users/logout")
       setLoggedIn(false)
+      setShowProfileModal(false)
       navigate("/")
     } catch (error) {
       console.error("Logout failed:", error)
@@ -51,18 +49,44 @@ function Navbar() {
     setMobileMenuOpen(!mobileMenuOpen)
   }
 
+  const toggleProfileModal = () => {
+    setShowProfileModal(!showProfileModal)
+  }
+
+  // Close profile modal when clicking outside
+  // useEffect(() => {
+  //   function handleClickOutside(event:any) {
+  //     const profileButton = document.getElementById('profile-button')
+  //     const profileModal = document.getElementById('profile-modal')
+      
+  //     if (
+  //       profileButton && 
+  //       profileModal && 
+  //       !profileButton.contains(event.target) && 
+  //       !profileModal.contains(event.target)
+  //     ) {
+  //       setShowProfileModal(false)
+  //     }
+  //   }
+
+  //   document.addEventListener('mousedown', handleClickOutside)
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside)
+  //   }
+  // }, [])
+
   return (
     <div className="w-full bg-lemon px-4 relative">
       <div className="flex w-full justify-between items-center py-2">
         {/* Logo and Brand */}
-        <div className="flex justify-center items-center">
+        <Link to="/" className="flex justify-center items-center">
           <img
             src={ScreenLife || "/placeholder.svg"}
             className="w-[4rem] h-[3.5rem] sm:w-[6rem] sm:h-[5rem]"
             alt="ScreenLife Logo"
           />
           <h1 className="text-black font-bold text-lg sm:text-xl">ScreenLife</h1>
-        </div>
+        </Link>
 
         {/* Mobile Menu Button */}
         <button
@@ -91,14 +115,44 @@ function Navbar() {
           </a>
         </div>
 
-        {/* Desktop Auth Buttons */}
+        {/* Desktop Auth Buttons or Profile Circle */}
         <div className="hidden md:flex">
           {isLoading ? (
             <span className="p-2">Loading...</span>
           ) : loggedIn ? (
-            <button onClick={handleLogout} className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600">
-              Logout
-            </button>
+            <div className="relative">
+              <div 
+                id="profile-button"
+                className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-colors"
+                onClick={toggleProfileModal}
+              >
+                <User size={20} color="white" />
+              </div>
+              
+              {/* Profile Modal */}
+              {showProfileModal && (
+                <div 
+                  id="profile-modal"
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 overflow-hidden"
+                >
+                  <div className="py-1">
+                    <Link to="/screenassistant">
+                      <button 
+                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      >
+                        Dashboard
+                      </button>
+                    </Link>
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <Link to="/signup">
@@ -128,12 +182,15 @@ function Navbar() {
             {isLoading ? (
               <span className="p-2">Loading...</span>
             ) : loggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 w-full sm:w-auto"
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-colors"
+                  onClick={toggleProfileModal}
+                >
+                  <User size={20} color="white" />
+                </div>
+                <span className="text-gray-500">Profile</span>
+              </div>
             ) : (
               <>
                 <Link to="/signup" className="w-full sm:w-auto">
@@ -145,6 +202,27 @@ function Navbar() {
               </>
             )}
           </div>
+          
+          {/* Mobile Profile Modal */}
+          {showProfileModal && loggedIn && (
+            <div className="bg-white rounded-md shadow-lg overflow-hidden mt-2">
+              <div className="py-1">
+                <Link to="/screenassistant">
+                  <button 
+                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Dashboard
+                  </button>
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
