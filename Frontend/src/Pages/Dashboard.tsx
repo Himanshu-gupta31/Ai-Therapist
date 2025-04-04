@@ -22,7 +22,7 @@ import fireAnimation from "@/assets/Fire.json";
 interface Habit {
   habitName: string;
   description: string;
-  id?: string;
+  id: string;
 }
 export default function Dashboard() {
   const [streak, setStreak] = useState(0);
@@ -33,7 +33,9 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [error, setError] = useState("");
-  const [completedHabit, setCompletedHabit] = useState(false);
+  const [completedHabit, setCompletedHabit] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const getHabits = async () => {
     try {
@@ -70,7 +72,22 @@ export default function Dashboard() {
 
     fetchStreak();
   }, []);
+  useEffect(() => {
+    const todayUTC = new Date().toISOString().split("T")[0];
+    const lastDate = localStorage.getItem("lastcheckedDate");
 
+    if (lastDate !== todayUTC) {
+      // New day, reset completedHabit
+      setCompletedHabit({});
+      localStorage.setItem("lastcheckedDate", todayUTC);
+    } else {
+      // Same day, load from localStorage
+      const storedHabits = localStorage.getItem("completedHabits");
+      if (storedHabits) {
+        setCompletedHabit(JSON.parse(storedHabits));
+      }
+    }
+  }, []);
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     setComplete(today === lastCheckedIn);
@@ -90,8 +107,14 @@ export default function Dashboard() {
       console.error("Error updating streak:", error);
     }
   };
-  const habitCompletion = async () => {
-    setCompletedHabit(!completedHabit);
+  const habitCompletion = (habitId: any) => {
+    const updatedHabits = {
+      ...completedHabit,
+      [habitId]: !completedHabit[habitId],
+    };
+
+    setCompletedHabit(updatedHabits);
+    localStorage.setItem("completedHabits", JSON.stringify(updatedHabits));
   };
 
   return (
@@ -152,11 +175,18 @@ export default function Dashboard() {
               <div key={index} className="group relative">
                 <div className="bg-white/80 border border-amber-200 backdrop-blur-sm hover:shadow-lg rounded-lg p-5 h-[10rem] flex flex-col transition-all duration-300 hover:border-amber-300">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-amber-900 line-clamp-1">
+                    <h3
+                      className={cn(
+                        "font-semibold line-clamp-1",
+                        completedHabit[habit.id]
+                          ? "line-through text-amber-400"
+                          : "text-amber-900"
+                      )}
+                    >
                       {habit.habitName}
                     </h3>
                     <div className="flex gap-1">
-                      {completedHabit ? (
+                      {completedHabit[habit.id] ? (
                         <div className="flex">
                           <Lottie
                             animationData={fireAnimation}
@@ -174,7 +204,7 @@ export default function Dashboard() {
                           </button>
                           <button
                             className="text-amber-500 hover:text-amber-700 p-1.5 rounded-full hover:bg-amber-100 transition-colors"
-                            onClick={habitCompletion}
+                            onClick={() => habitCompletion(habit.id)}
                           >
                             <CheckCircle2 className="w-4 h-4" />
                           </button>
@@ -183,7 +213,14 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <p className="text-amber-700/80 text-sm line-clamp-3 mb-auto">
+                  <p
+                    className={cn(
+                      "text-sm line-clamp-3 mb-auto",
+                      completedHabit[habit.id]
+                        ? "line-through text-amber-400"
+                        : "text-amber-700/80"
+                    )}
+                  >
                     {habit.description}
                   </p>
 
