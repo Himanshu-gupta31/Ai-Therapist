@@ -1,9 +1,8 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { newRequest } from "@/utils/request";
 import { CircleCheck, CirclePlus, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+
 
 interface Habit {
   habitName: string;
@@ -15,37 +14,38 @@ function Habit() {
   const [habits, setHabit] = useState<Habit[]>([]);
   const [habitName, setHabitName] = useState("");
   const [description, setDescription] = useState("");
+  const [inputValue, setInputValue] = useState(""); // For filtering suggestions
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionFilter, setSuggestionFilter] = useState("");
+
+  const habitSuggestion = [
+    "Yoga",
+    "Meditation",
+    "Reading",
+    "Learning",
+    "Breakfast",
+    "8k Steps",
+    "3-4L water",
+    "Work",
+    "Workout",
+    "Skincare",
+    "Haircare",
+    "Socialising",
+  ];
 
   useEffect(() => {
     fetchHabits();
   }, []);
-  const deleteHabits = async (habitId: string) => {
-    try {
-      setDeleteLoading(habitId);
-      const response = await newRequest.delete(`/habit/deleteHabit/${habitId}`);
-      console.log(response);
 
-      
-      setDeleteLoading(null);
-
-      
-      fetchHabits();
-    } catch (error) {
-      setError("Failed to delete Habit");
-      console.error("Error deleting habits:", error);
-      setDeleteLoading(null); 
-    }
-  };
   const fetchHabits = async () => {
     try {
       setLoading(true);
-      console.log("Cookies:", document.cookie)
       const response = await newRequest.get("/habit/getHabit");
-      console.log(response);
       setHabit(response.data.getHabit);
       setError("");
     } catch (error) {
@@ -56,16 +56,31 @@ function Habit() {
     }
   };
 
+  const deleteHabits = async (habitId: string) => {
+    try {
+      setDeleteLoading(habitId);
+      await newRequest.delete(`/habit/deleteHabit/${habitId}`);
+      setDeleteLoading(null);
+      fetchHabits();
+    } catch (error) {
+      setError("Failed to delete Habit");
+      console.error("Error deleting habits:", error);
+      setDeleteLoading(null);
+    }
+  };
+
   const addHabitHandler = async () => {
     try {
       setLoading(true);
       const response = await newRequest.post("/habit/addHabit", {
-        habitName: habitName,
-        description: description,
+        habitName,
+        description,
       });
-      console.log(response)
+      console.log(response);
       setHabitName("");
       setDescription("");
+      setInputValue("");
+      setSuggestionFilter("");
       setShowModal(false);
       setError("");
       fetchHabits();
@@ -75,6 +90,18 @@ function Habit() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter suggestions based on the suggestion filter input
+  const filteredSuggestions = habitSuggestion.filter((suggestion) =>
+    suggestion.toLowerCase().includes(suggestionFilter.toLowerCase())
+  );
+
+  // Function to select a suggestion
+  const selectSuggestion = (suggestion: string) => {
+    setHabitName(suggestion);
+    setSuggestionFilter("");
+    setShowSuggestions(false);
   };
 
   return (
@@ -87,7 +114,13 @@ function Habit() {
             <h1 className="ml-2 text-xl font-bold">My Habits</h1>
           </div>
           <div>
-            <Button onClick={() => setShowModal(true)}>
+            <Button
+              onClick={() => {
+                setShowModal(true);
+                setInputValue(""); // Reset filter when opening modal
+                setSuggestionFilter("");
+              }}
+            >
               <CirclePlus className="mr-2" />
               Add Habit
             </Button>
@@ -133,13 +166,7 @@ function Habit() {
                     <button
                       type="button"
                       className="text-gray-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-full"
-                      onClick={() => {
-                        console.log(
-                          "Delete button clicked for habit ID:",
-                          habit.id
-                        );
-                        if (habit.id) deleteHabits(habit.id);
-                      }}
+                      onClick={() => habit.id && deleteHabits(habit.id)}
                       disabled={deleteLoading === habit.id}
                     >
                       {deleteLoading === habit.id ? (
@@ -169,6 +196,42 @@ function Habit() {
               </button>
             </div>
             <div className="space-y-4">
+              {/* Suggestion Box */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Find Suggestions
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={suggestionFilter}
+                    onChange={(e) => {
+                      setSuggestionFilter(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    placeholder="Type to find suggestions"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  {showSuggestions && filteredSuggestions.length > 0 && (
+                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-200 max-h-60 overflow-auto">
+                      <ul className="py-1">
+                        {filteredSuggestions.map((suggestion) => (
+                          <li
+                            key={suggestion}
+                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                            onClick={() => selectSuggestion(suggestion)}
+                          >
+                            {suggestion}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Habit Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Habit Name
@@ -176,11 +239,13 @@ function Habit() {
                 <input
                   type="text"
                   value={habitName}
-                  placeholder="Enter habit name"
                   onChange={(e) => setHabitName(e.target.value)}
+                  placeholder="Enter habit name"
                   className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
+
+              {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Description
@@ -192,6 +257,8 @@ function Habit() {
                   className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
+
+              {/* Buttons */}
               <div className="flex justify-end pt-4">
                 <Button
                   variant="outline"

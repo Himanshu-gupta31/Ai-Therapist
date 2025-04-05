@@ -136,7 +136,7 @@ function Navbar() {
                   className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 overflow-hidden"
                 >
                   <div className="py-1">
-                    <Link to="/screenassistant">
+                    <Link to="/dashboard">
                       <button 
                         className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                       >
@@ -207,7 +207,7 @@ function Navbar() {
           {showProfileModal && loggedIn && (
             <div className="bg-white rounded-md shadow-lg overflow-hidden mt-2">
               <div className="py-1">
-                <Link to="/screenassistant">
+                <Link to="/dashboard">
                   <button 
                     className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
