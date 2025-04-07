@@ -14,7 +14,7 @@ function Habit() {
   const [habits, setHabit] = useState<Habit[]>([]);
   const [habitName, setHabitName] = useState("");
   const [description, setDescription] = useState("");
-  const [inputValue, setInputValue] = useState(""); // For filtering suggestions
+  const [inputValue, setInputValue] = useState(""); 
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);

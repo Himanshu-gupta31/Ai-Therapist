@@ -1,5 +1,4 @@
 import { Response, Request } from "express";
-import { Prisma } from "@prisma/client";
 import { prisma } from "../db/db";
 
 export const updatedStreak = async (req: Request, res: Response) => {
@@ -21,7 +20,7 @@ export const updatedStreak = async (req: Request, res: Response) => {
 
     const now = new Date();
     const todayUTC = now.toISOString().split("T")[0];
-    
+
     // If user already checked in today, don't modify the streak
     if (checkuser.checkInDates.includes(todayUTC)) {
       res.status(200).json({
@@ -31,51 +30,45 @@ export const updatedStreak = async (req: Request, res: Response) => {
       });
       return;
     }
-    
-    // Sort the check-in dates to properly calculate the streak
-    const sortedDates = [...checkuser.checkInDates, todayUTC].sort();
-    
-    // Calculate the streak based on consecutive dates
-    let currentStreak = 1;
-    let maxStreak = 1;
-    
-    // Calculate streak by checking consecutive days
-    for (let i = 1; i < sortedDates.length; i++) {
-      const currentDate = new Date(sortedDates[i]);
-      const prevDate = new Date(sortedDates[i-1]);
-      
-      // Calculate difference in days
-      const diffTime = currentDate.getTime() - prevDate.getTime();
+
+    const sortedDates = [...checkuser.checkInDates].sort();
+    let newStreak = 1;
+
+    if (sortedDates.length >= 1) {
+      const lastDateStr = sortedDates[sortedDates.length - 1];
+      const secondLastDateStr = sortedDates[sortedDates.length - 2];
+
+      const lastDate = new Date(lastDateStr);
+      const secondLastDate = new Date(secondLastDateStr);
+
+      const diffTime = lastDate.getTime() - secondLastDate.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays === 1) {
-        // Consecutive day, increment streak
-        currentStreak++;
-      } else if (diffDays > 1) {
-        // Break in streak, reset to 1
-        currentStreak = 1;
+        newStreak = (checkuser.streak || 0) + 1;
+      } else {
+        newStreak = 1;
       }
-      // If diffDays is 0 (same day), we ignore it (prevents duplicate entries affecting streak)
-      
-      maxStreak = Math.max(maxStreak, currentStreak);
     }
+
+    const updatedCheckInDates = Array.from(new Set([...checkuser.checkInDates, todayUTC]));
 
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        streak: currentStreak,
-        longestStreak: Math.max(checkuser.longestStreak || 0, currentStreak),
+        streak: newStreak,
+        longestStreak: Math.max(checkuser.longestStreak || 0, newStreak),
         lastCheckIn: now,
         checkInDates: {
-          set: Array.from(new Set([...checkuser.checkInDates, todayUTC])),
+          set: updatedCheckInDates,
         },
       },
     });
 
     res.status(200).json({
       message: "Streak Updated Successfully",
-      streak: currentStreak,
-      longestStreak: Math.max(checkuser.longestStreak || 0, currentStreak),
+      streak: newStreak,
+      longestStreak: Math.max(checkuser.longestStreak || 0, newStreak),
     });
   } catch (error) {
     console.error("Error updating streak:", error);
@@ -108,31 +101,13 @@ export const getStreak = async (req: Request, res: Response) => {
       return;
     }
 
-    // Recalculate streak based on check-in dates to ensure accuracy
-    const sortedDates = [...findUser.checkInDates].sort();
-    let currentStreak = 1;
-    
-    for (let i = 1; i < sortedDates.length; i++) {
-      const currentDate = new Date(sortedDates[i]);
-      const prevDate = new Date(sortedDates[i-1]);
-      
-      const diffTime = currentDate.getTime() - prevDate.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays === 1) {
-        currentStreak++;
-      } else if (diffDays > 1) {
-        currentStreak = 1;
-      }
-    }
-
     const formattedUser = {
-      longestStreak: findUser?.longestStreak,
-      streak: currentStreak, // Use recalculated streak
-      lastCheckIn: findUser?.lastCheckIn
-        ? new Date(findUser?.lastCheckIn).toISOString().split("T")[0]
+      longestStreak: findUser.longestStreak,
+      streak: findUser.streak,
+      lastCheckIn: findUser.lastCheckIn
+        ? new Date(findUser.lastCheckIn).toISOString().split("T")[0]
         : null,
-      checkInDates: findUser?.checkInDates.map((date) =>
+      checkInDates: findUser.checkInDates.map((date) =>
         new Date(date).toISOString().split("T")[0]
       ),
     };
