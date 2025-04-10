@@ -1,0 +1,213 @@
+import type React from "react"
+
+import { useState } from "react"
+import { newRequest } from "@/utils/request"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { CalendarIcon, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+
+export default function DailyPlanForm() {
+  // Individual state for each input field
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0])
+  const [planName, setPlanName] = useState("")
+  const [time, setTime] = useState("")
+  const [priority, setPriority] = useState("")
+  const [category, setCategory] = useState("")
+  const [description, setDescription] = useState("")
+
+  // UI state
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
+
+  // Individual handlers for each input field
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)
+  const handlePlanNameChange = (e: React.ChangeEvent<HTMLInputElement>) => setPlanName(e.target.value)
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => setTime(e.target.value)
+  const handlePriorityChange = (value: string) => setPriority(value)
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => setCategory(e.target.value)
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)
+
+  const resetForm = () => {
+    setDate(new Date().toISOString().split("T")[0])
+    setPlanName("")
+    setTime("")
+    setPriority("")
+    setCategory("")
+    setDescription("")
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage("")
+    setError("")
+
+    try {
+      const response = await newRequest.post("/api/dailyplanner/addplan", {
+        date,
+        planName,
+        time,
+        priority,
+        category,
+        description,
+      })
+
+      setMessage(response.data.message)
+      resetForm()
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to add plan")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "High":
+        return "text-red-500"
+      case "Medium":
+        return "text-amber-500"
+      case "Low":
+        return "text-green-500"
+      default:
+        return ""
+    }
+  }
+
+  return (
+    <Card className="w-full max-w-3xl mx-auto shadow-lg">
+      <CardHeader className="space-y-1 bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+        <CardTitle className="text-2xl font-bold text-center">Daily Plan</CardTitle>
+        <CardDescription className="text-center">Add a new task to your daily schedule</CardDescription>
+      </CardHeader>
+
+      <CardContent className="pt-6">
+        {message && (
+          <Alert className="mb-6 bg-green-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertTitle className="text-green-800">Success</AlertTitle>
+            <AlertDescription className="text-green-700">{message}</AlertDescription>
+          </Alert>
+        )}
+
+        {error && (
+          <Alert className="mb-6 bg-red-50 border-red-200">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertTitle className="text-red-800">Error</AlertTitle>
+            <AlertDescription className="text-red-700">{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <Label htmlFor="date" className="flex items-center gap-2">
+                <CalendarIcon className="h-4 w-4 text-slate-500" />
+                Date
+              </Label>
+              <Input
+                id="date"
+                type="date"
+                value={date}
+                onChange={handleDateChange}
+                className="focus-visible:ring-slate-400"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="time" className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-slate-500" />
+                Time
+              </Label>
+              <Input
+                id="time"
+                type="time"
+                value={time}
+                onChange={handleTimeChange}
+                className="focus-visible:ring-slate-400"
+                step="60"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="planName">Plan Name</Label>
+            <Input
+              id="planName"
+              type="text"
+              value={planName}
+              onChange={handlePlanNameChange}
+              className="focus-visible:ring-slate-400"
+              placeholder="What do you need to do?"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={priority} onValueChange={handlePriorityChange} required>
+                <SelectTrigger
+                  id="priority"
+                  className={cn("focus-visible:ring-slate-400", priority && getPriorityColor(priority))}
+                >
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="High" className="text-red-500">
+                    High
+                  </SelectItem>
+                  <SelectItem value="Medium" className="text-amber-500">
+                    Medium
+                  </SelectItem>
+                  <SelectItem value="Low" className="text-green-500">
+                    Low
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Input
+                id="category"
+                type="text"
+                value={category}
+                onChange={handleCategoryChange}
+                className="focus-visible:ring-slate-400"
+                placeholder="Work, Personal, Health, etc."
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={handleDescriptionChange}
+              className="min-h-[100px] focus-visible:ring-slate-400"
+              placeholder="Add any additional details about this task..."
+            />
+          </div>
+
+          <CardFooter className="px-0 pt-2">
+            <Button type="submit" disabled={loading} className="w-full transition-all duration-200" variant="default">
+              {loading ? "Adding..." : "Add to Schedule"}
+            </Button>
+          </CardFooter>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}

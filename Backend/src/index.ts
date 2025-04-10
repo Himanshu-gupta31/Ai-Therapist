@@ -29,10 +29,12 @@ console.log(`CORS_ORIGIN: ${process.env.CORS_ORIGIN}`);
 import userRouter from "./routes/userRouter";
 import habitRouter from "./routes/habitRoute"
 import chatRouter from "./routes/chatRoute"
+import dailyPlanRoute from './routes/dailyPlanRoute'
 // Router Declaration
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/habit",habitRouter)
 app.use("/api/v1/chat",chatRouter)
+app.use("/api/v1/daily",dailyPlanRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is running at Port ${PORT}`);

@@ -8,6 +8,7 @@ import {GoogleOAuthProvider} from "@react-oauth/google"
 import ScreenTimeCalculator from "./component/ScreenTimeCalculator"
 import ScreenTimeAssistant from "./component/ScreenTimeAssistant"
 import Dashboard from "./Pages/Dashboard"
+import DailyPlanForm from "./Pages/DailyPlan"
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/screentime" element={<ScreenTimeCalculator/>}/>
           <Route path="/screenassistant" element={<ScreenTimeAssistant/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
+          <Route path="/dailyplan" element={<DailyPlanForm/>}/>
         </Routes>
       </div>
     </GoogleOAuthProvider>

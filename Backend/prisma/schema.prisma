@@ -14,26 +14,41 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  email      String   @unique
-  password   String
-  name       String? // Optional: add name field
-  token      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  authType   String?
-  screenTime Int?     @default(0)
-  habits     Habit[]
-  streak     Int      @default(0)
-  longestStreak Int   @default(0)
-  lastCheckIn  DateTime?
-  checkInDates  String[] @default([])
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String? // Optional: add name field
+  token         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  authType      String?
+  screenTime    Int?           @default(0)
+  habits        Habit[]
+  streak        Int            @default(0)
+  longestStreak Int            @default(0)
+  lastCheckIn   DateTime?
+  checkInDates  String[]       @default([])
+  dailyPlanner  DailyPlanner[]
 }
 
 model Habit {
-  id        String @id @default(uuid())
-  habitName String
-  userId    String
+  id          String @id @default(uuid())
+  habitName   String
+  userId      String
   description String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyPlanner {
+  id          String   @id @default(uuid()) 
+  userId      String
+  date        DateTime
+  planName    String
+  time        String
+  description String?
+  priority    String
+  category    String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId,date,time])
 }
