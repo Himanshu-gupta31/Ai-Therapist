@@ -31,7 +31,7 @@ export default function DailyPlanForm() {
   const handlePlanNameChange = (e: React.ChangeEvent<HTMLInputElement>) => setPlanName(e.target.value)
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => setTime(e.target.value)
   const handlePriorityChange = (value: string) => setPriority(value)
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => setCategory(e.target.value)
+  const handleCategoryChange = (value:string) => setCategory(value)
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)
 
   const resetForm = () => {
@@ -50,7 +50,7 @@ export default function DailyPlanForm() {
     setError("")
 
     try {
-      const response = await newRequest.post("/api/dailyplanner/addplan", {
+      const response = await newRequest.post("/daily/addplan", {
         date,
         planName,
         time,
@@ -80,12 +80,26 @@ export default function DailyPlanForm() {
         return ""
     }
   }
+  const categoryColor = (category: string) => {
+    switch (category) {
+      case "Health":
+        return "bg-green-100 text-green-600"
+      case "Work":
+        return "bg-teal-100 text-teal-600"
+      case "Personal":
+        return "bg-emerald-100 text-emerald-600"
+      case "Study":
+        return "bg-cyan-100 text-cyan-600"
+      default:
+        return "bg-teal-100 text-teal-600"
+    }
+  }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-lg">
-      <CardHeader className="space-y-1 bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+    <Card className="w-full max-w-3xl mx-auto shadow-lg mt-6 py-0">
+      <CardHeader className="space-y-1 bg-gradient-to-r from-teal-50 to-teal-100 border-b pt-2 ">
         <CardTitle className="text-2xl font-bold text-center">Daily Plan</CardTitle>
-        <CardDescription className="text-center">Add a new task to your daily schedule</CardDescription>
+        <CardDescription className="text-center pb-2">Add a new task to your daily schedule</CardDescription>
       </CardHeader>
 
       <CardContent className="pt-6">
@@ -177,16 +191,29 @@ export default function DailyPlanForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Input
-                id="category"
-                type="text"
-                value={category}
-                onChange={handleCategoryChange}
-                className="focus-visible:ring-slate-400"
-                placeholder="Work, Personal, Health, etc."
-                required
-              />
+            <Label htmlFor="category">Category</Label>
+              <Select value={category} onValueChange={handleCategoryChange} required>
+                <SelectTrigger
+                  id="priority"
+                  className={cn("focus-visible:ring-slate-400", category && categoryColor(category))}
+                >
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Work" className="text-indigo-600">
+                    Work
+                  </SelectItem>
+                  <SelectItem value="Personal" className="text-emerald-600">
+                    Personal
+                  </SelectItem>
+                  <SelectItem value="Health" className="text-amber-600">
+                    Health
+                  </SelectItem>
+                  <SelectItem value="Study" className="text-cyan-500">
+                    Study
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -201,8 +228,8 @@ export default function DailyPlanForm() {
             />
           </div>
 
-          <CardFooter className="px-0 pt-2">
-            <Button type="submit" disabled={loading} className="w-full transition-all duration-200" variant="default">
+          <CardFooter className="px-0 pt-2 mb-4">
+            <Button type="submit" disabled={loading} className="w-full transition-all duration-200 bg-teal-500" variant="default">
               {loading ? "Adding..." : "Add to Schedule"}
             </Button>
           </CardFooter>

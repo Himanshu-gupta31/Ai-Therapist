@@ -1,3 +1,5 @@
+"use client"
+
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import ScreenLife from "/ScreenLife.png"
 import { useEffect, useState } from "react"
@@ -53,30 +55,8 @@ function Navbar() {
     setShowProfileModal(!showProfileModal)
   }
 
-  // Close profile modal when clicking outside
-  // useEffect(() => {
-  //   function handleClickOutside(event:any) {
-  //     const profileButton = document.getElementById('profile-button')
-  //     const profileModal = document.getElementById('profile-modal')
-      
-  //     if (
-  //       profileButton && 
-  //       profileModal && 
-  //       !profileButton.contains(event.target) && 
-  //       !profileModal.contains(event.target)
-  //     ) {
-  //       setShowProfileModal(false)
-  //     }
-  //   }
-
-  //   document.addEventListener('mousedown', handleClickOutside)
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside)
-  //   }
-  // }, [])
-
   return (
-    <div className="w-full bg-lemon px-4 relative">
+    <div className="w-full bg-teal-200/70 px-4 relative border-b border-teal-100">
       <div className="flex w-full justify-between items-center py-2">
         {/* Logo and Brand */}
         <Link to="/" className="flex justify-center items-center">
@@ -85,12 +65,12 @@ function Navbar() {
             className="w-[4rem] h-[3.5rem] sm:w-[6rem] sm:h-[5rem]"
             alt="ScreenLife Logo"
           />
-          <h1 className="text-black font-bold text-lg sm:text-xl">ScreenLife</h1>
+          <h1 className="text-teal-900 font-bold text-lg sm:text-xl">ScreenLife</h1>
         </Link>
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden p-2 focus:outline-none"
+          className="md:hidden p-2 focus:outline-none text-teal-700"
           onClick={toggleMobileMenu}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
@@ -98,55 +78,33 @@ function Navbar() {
         </button>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex justify-center items-center">
-          <p className="text-yellow-500 text-lg font-semibold mr-2 cursor-pointer hover:underline hover:text-amber-700">
-            How It Works
-          </p>
-          <p className="text-lg font-semibold mr-2 ml-2 cursor-pointer hover:underline hover:text-amber-700">
-            Benefits
-          </p>
-          <p className="text-lg font-semibold mr-2 ml-2 cursor-pointer hover:underline hover:text-amber-700">
-            Testimonials
-          </p>
-          <a href="https://x.com/Himanshuu3112" target="_blank" rel="noopener noreferrer">
-            <p className="text-lg font-semibold mr-2 ml-2 cursor-pointer hover:underline hover:text-amber-700">
-              Contact
-            </p>
-          </a>
-        </div>
+        
 
         {/* Desktop Auth Buttons or Profile Circle */}
         <div className="hidden md:flex">
           {isLoading ? (
-            <span className="p-2">Loading...</span>
+            <span className="p-2 text-teal-600">Loading...</span>
           ) : loggedIn ? (
             <div className="relative">
-              <div 
+              <div
                 id="profile-button"
-                className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-colors"
+                className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center cursor-pointer hover:bg-teal-600 transition-colors"
                 onClick={toggleProfileModal}
               >
                 <User size={20} color="white" />
               </div>
-              
+
               {/* Profile Modal */}
               {showProfileModal && (
-                <div 
+                <div
                   id="profile-modal"
-                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 overflow-hidden"
+                  className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 overflow-hidden border border-teal-100"
                 >
                   <div className="py-1">
                     <Link to="/dashboard">
-                      <button 
-                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      >
-                        Dashboard
-                      </button>
+                      <button className="w-full text-left px-4 py-2 text-teal-700 hover:bg-teal-50">Dashboard</button>
                     </Link>
-                    <button 
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-                    >
+                    <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-teal-50">
                       Logout
                     </button>
                   </div>
@@ -156,10 +114,10 @@ function Navbar() {
           ) : (
             <>
               <Link to="/signup">
-                <button className="bg-orange-200 p-2 rounded-xl mr-2 hover:bg-amber-200">Sign Up</button>
+                <button className="bg-teal-100 p-2 rounded-xl mr-2 hover:bg-teal-200 text-teal-700">Sign Up</button>
               </Link>
               <Link to="/signin">
-                <button className="bg-orange-200 p-2 rounded-xl hover:bg-amber-200">Sign In</button>
+                <button className="bg-teal-500 p-2 rounded-xl hover:bg-teal-600 text-white">Sign In</button>
               </Link>
             </>
           )}
@@ -168,56 +126,42 @@ function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-lemon z-50 shadow-lg py-4 px-6 flex flex-col gap-4 border-t border-amber-200">
-          <p className="text-yellow-500 text-lg font-semibold cursor-pointer hover:underline hover:text-amber-700">
-            How It Works
-          </p>
-          <p className="text-lg font-semibold cursor-pointer hover:underline hover:text-amber-700">Benefits</p>
-          <p className="text-lg font-semibold cursor-pointer hover:underline hover:text-amber-700">Testimonials</p>
-          <a href="https://x.com/Himanshuu3112" target="_blank" rel="noopener noreferrer">
-            <p className="text-lg font-semibold cursor-pointer hover:underline hover:text-amber-700">Contact</p>
-          </a>
+        <div className="md:hidden absolute top-full left-0 right-0 bg-teal-50 z-50 shadow-lg py-4 px-6 flex flex-col gap-4 border-t border-teal-100">
+         
 
           <div className="flex flex-col sm:flex-row gap-2 mt-2">
             {isLoading ? (
-              <span className="p-2">Loading...</span>
+              <span className="p-2 text-teal-600">Loading...</span>
             ) : loggedIn ? (
               <div className="flex items-center gap-2">
-                <div 
-                  className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-colors"
+                <div
+                  className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center cursor-pointer hover:bg-teal-600 transition-colors"
                   onClick={toggleProfileModal}
                 >
                   <User size={20} color="white" />
                 </div>
-                <span className="text-gray-500">Profile</span>
+                <span className="text-teal-700">Profile</span>
               </div>
             ) : (
               <>
                 <Link to="/signup" className="w-full sm:w-auto">
-                  <button className="bg-orange-200 p-2 rounded-xl hover:bg-amber-200 w-full">Sign Up</button>
+                  <button className="bg-teal-100 p-2 rounded-xl hover:bg-teal-200 w-full text-teal-700">Sign Up</button>
                 </Link>
                 <Link to="/signin" className="w-full sm:w-auto">
-                  <button className="bg-orange-200 p-2 rounded-xl hover:bg-amber-200 w-full">Sign In</button>
+                  <button className="bg-teal-500 p-2 rounded-xl hover:bg-teal-600 w-full text-white">Sign In</button>
                 </Link>
               </>
             )}
           </div>
-          
+
           {/* Mobile Profile Modal */}
           {showProfileModal && loggedIn && (
-            <div className="bg-white rounded-md shadow-lg overflow-hidden mt-2">
+            <div className="bg-white rounded-md shadow-lg overflow-hidden mt-2 border border-teal-100">
               <div className="py-1">
                 <Link to="/dashboard">
-                  <button 
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </button>
+                  <button className="w-full text-left px-4 py-2 text-teal-700 hover:bg-teal-50">Dashboard</button>
                 </Link>
-                <button 
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-                >
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-500 hover:bg-teal-50">
                   Logout
                 </button>
               </div>
