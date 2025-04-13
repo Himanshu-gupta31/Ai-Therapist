@@ -11,57 +11,84 @@ if (!JWT_SECRET) {
 
 const prisma = new PrismaClient();
 
+// Common Cookie Options
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 24 * 60 * 60 * 1000 // 1 day
+};
+
 const googleLogin = async (req: Request, res: Response) => {
   try {
     const { code } = req.query;
     
     if (!code) {
        res.status(400).json({ message: "Authorization code is required" });
-       return;
+       return
     }
     
     const googleRes = await oauth2client.getToken(code as string);
     oauth2client.setCredentials(googleRes.tokens);
 
-    // Fixed typo in access_token parameter. you should use native fetch function in js not axios here
-    const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`);
+    // Get user info
+    const userRes = await axios.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+    );
     
-    const { email } = userRes.data;
+    const { email, name } = userRes.data;
     
-    // Fixed Prisma query with proper where clause
+    // Check if user exists
     let user = await prisma.user.findUnique({
-      where: {
-        email: email
-      }
+      where: { email }
     });
     
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user?.id || '', email }, 
+      JWT_SECRET, 
+      { expiresIn: "1d" }
+    );
+    
     if (!user) {
-      // Create new user with empty password for Google OAuth users
+      // Create new user with token
       user = await prisma.user.create({
         data: {
-          email: email,
+          email,
+          name: name || null,
           password: "", // Empty string for Google users
-          authType: "GOOGLE" // Add this field to track auth method
+          authType: "GOOGLE",
+          token // Store token in database
+        }
+      });
+    } else {
+      // Update existing user with token
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { 
+          token,
+          // Update name if it wasn't set before
+          name: user.name || name || null
         }
       });
     }
     
-    const token = jwt.sign({ email, id: user.id }, JWT_SECRET, {
-      expiresIn: "1d"
-    });
+    // Set cookie
+    res.cookie('token', token, cookieOptions);
     
-    res.status(200).json({
+     res.status(200).json({
       message: "Success",
       token,
       user: {
         id: user.id,
-        email: user.email
+        email: user.email,
+        name: user.name
       }
     });
     
   } catch (error) {
     console.error("Google login error:", error);
-    res.status(500).json({ message: "Internal server error" });
+     res.status(500).json({ message: "Internal server error" });
+     return
   }
 };
 

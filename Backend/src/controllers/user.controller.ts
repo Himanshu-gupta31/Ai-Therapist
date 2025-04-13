@@ -13,7 +13,7 @@ if (!JWT_SECRET) {
 // Common Cookie Options
 const cookieOptions = {
   httpOnly: true, // Prevents client-side JS from accessing the cookie
-  secure: false,  // Set to true in production (HTTPS)
+  secure: process.env.NODE_ENV === 'production',  // Set to true in production (HTTPS)
   maxAge: 24 * 60 * 60 * 1000, // 1 day
 };
 
@@ -29,8 +29,8 @@ export const signup = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ message: "Email and Password are required" });
-      return;
+       res.status(400).json({ message: "Email and Password are required" });
+       return
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -38,14 +38,19 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      res.status(400).json({ message: "User already exists with this email" });
-      return;
+       res.status(400).json({ message: "User already exists with this email" });
+       return
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user without token first
     const newUser = await prisma.user.create({
-      data: { email, password: hashedPassword },
+      data: { 
+        email, 
+        password: hashedPassword,
+        authType: "EMAIL" 
+      },
       select: { id: true, email: true },
     });
 
@@ -54,6 +59,12 @@ export const signup = async (req: Request, res: Response) => {
       JWT_SECRET,
       { expiresIn: "1d" }
     );
+
+    // Update user with token
+    await prisma.user.update({
+      where: { id: newUser.id },
+      data: { token }
+    });
 
     res
       .cookie("token", token, cookieOptions)
@@ -70,8 +81,8 @@ export const signin = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ message: "Email and Password are required" });
-      return;
+       res.status(400).json({ message: "Email and Password are required" });
+       return
     }
 
     const user = await prisma.user.findUnique({
@@ -79,15 +90,23 @@ export const signin = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      res.status(400).json({ message: "User must signup first" });
-      return;
+       res.status(400).json({ message: "User must signup first" });
+       return
+    }
+
+    // Skip password check for OAuth users
+    if (user.authType === "GOOGLE" && !user.password) {
+       res.status(400).json({ 
+        message: "This account uses Google authentication. Please sign in with Google."
+      });
+      return
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      res.status(401).json({ message: "Incorrect Password" });
-      return;
+       res.status(401).json({ message: "Incorrect Password" });
+       return
     }
 
     const token = jwt.sign(
@@ -95,6 +114,12 @@ export const signin = async (req: Request, res: Response) => {
       JWT_SECRET,
       { expiresIn: "1d" }
     );
+
+    // Update user with new token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { token }
+    });
 
     res
       .cookie("token", token, cookieOptions)
@@ -108,6 +133,14 @@ export const signin = async (req: Request, res: Response) => {
 
 export const logOut = async (req: CustomRequest, res: Response) => {
   try {
+    // Clear token in database if user is logged in
+    if (req.user && req.user.id) {
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: { token: null }
+      });
+    }
+
     res
       .clearCookie("token", cookieOptions)
       .status(200)
@@ -118,25 +151,35 @@ export const logOut = async (req: CustomRequest, res: Response) => {
   }
 };
 
-export const VerifyUser=async(req:Request,res:Response)=>{
-       try {
-        const user=(req as any).user;
-        if(!user || !user.id){
-          res.status(400).json({message:"Unauthorized Access"})
-        }
-        const verifyUser=await prisma.user.findUnique({
-          where:{
-            id:user?.id
-          },
-          select:{
-            email:true,
-            id:true
-          }
-        })
-        res.status(200)
-        .json({verifyUser})
-       } catch (error) {
-        console.error("Error verifying the user",error)
-        res.status(500).json({ message: "Internal server error" });
-       }
-}
+export const VerifyUser = async (req: CustomRequest, res: Response) => {
+  try {
+    const user = req.user;
+    
+    if (!user || !user.id) {
+       res.status(401).json({ message: "Unauthorized Access" });
+       return
+    }
+    
+    const verifiedUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        email: true,
+        id: true,
+        name: true,
+        authType: true
+      }
+    });
+    
+    if (!verifiedUser) {
+       res.status(404).json({ message: "User not found" });
+       return
+    }
+    
+     res.status(200).json({ user: verifiedUser });
+     return
+  } catch (error) {
+    console.error("Error verifying the user", error);
+     res.status(500).json({ message: "Internal server error" });
+     return
+  }
+};

@@ -83,9 +83,9 @@ export default function DailyPlanForm() {
   const categoryColor = (category: string) => {
     switch (category) {
       case "Health":
-        return "bg-green-100 text-green-600"
+        return "bg-blue-100 text-blue-600"
       case "Work":
-        return "bg-teal-100 text-teal-600"
+        return "bg-teal-100 text-indigo-600"
       case "Personal":
         return "bg-emerald-100 text-emerald-600"
       case "Study":
@@ -206,7 +206,7 @@ export default function DailyPlanForm() {
                   <SelectItem value="Personal" className="text-emerald-600">
                     Personal
                   </SelectItem>
-                  <SelectItem value="Health" className="text-amber-600">
+                  <SelectItem value="Health" className="text-blue-600">
                     Health
                   </SelectItem>
                   <SelectItem value="Study" className="text-cyan-500">

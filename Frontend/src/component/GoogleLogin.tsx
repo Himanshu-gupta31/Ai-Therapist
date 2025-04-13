@@ -1,6 +1,8 @@
 import {useGoogleLogin} from "@react-oauth/google"
 import { googleAuth } from "../utils/request"
+import { useNavigate } from "react-router-dom";
 function GoogleLogin() {
+  const navigate=useNavigate()
     const responseGoogle=async(authResult:any)=>{
          try {
             if(authResult['code']){
@@ -8,6 +10,7 @@ function GoogleLogin() {
                console.log(result)
                const { email } = result.data.user; 
                console.log("User Email:", email);
+               navigate("/dashboard")
             }
          } catch (error) {
             console.error("Errro while requesting google code:",error)

@@ -12,7 +12,7 @@ function HomeSection() {
             Enter your daily screen time and problems to see how your life could look in the next 30 years — along with solutions to help you reduce it.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-[#FFDE59] text-black px-6 py-3 rounded-2xl shadow-md hover:bg-[#ffcc33]">Get Started</button>
+            <button className="bg-teal-500 text-white px-6 py-3 rounded-2xl shadow-md hover:bg-teal-700/80 border border-teal-700">Get Started</button>
             <button className="bg-transparent border border-[#333333] text-[#333333] px-6 py-3 rounded-2xl hover:bg-[#e0e0e0]">Learn More</button>
           </div>
         </div>
