@@ -7,12 +7,12 @@ function GoogleLogin() {
          try {
             if(authResult['code']){
                const result=await googleAuth(authResult['code']);
-               console.log(result)
+              //  console.log(result)
                const { email } = result.data.user; 
                console.log("User Email:", email);
                navigate("/dashboard")
             }
-         } catch (error) {
+         } catch (error) { 
             console.error("Errro while requesting google code:",error)
          }
     }

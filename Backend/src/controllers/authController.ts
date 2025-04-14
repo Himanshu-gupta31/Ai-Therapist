@@ -30,50 +30,49 @@ const googleLogin = async (req: Request, res: Response) => {
     const googleRes = await oauth2client.getToken(code as string);
     oauth2client.setCredentials(googleRes.tokens);
 
-    // Get user info
+    
     const userRes = await axios.get(
       `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
     );
     
     const { email, name } = userRes.data;
     
-    // Check if user exists
+    
     let user = await prisma.user.findUnique({
       where: { email }
     });
     
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user?.id || '', email }, 
-      JWT_SECRET, 
-      { expiresIn: "1d" }
-    );
-    
     if (!user) {
-      // Create new user with token
+      
       user = await prisma.user.create({
         data: {
           email,
           name: name || null,
-          password: "", // Empty string for Google users
+          password: "", 
           authType: "GOOGLE",
-          token // Store token in database
-        }
-      });
-    } else {
-      // Update existing user with token
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { 
-          token,
-          // Update name if it wasn't set before
-          name: user.name || name || null
         }
       });
     }
     
-    // Set cookie
+    
+    const token = jwt.sign(
+      { userId: user.id, email }, 
+      JWT_SECRET, 
+      { expiresIn: "1d" }
+    );
+    
+    
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { 
+        token,
+        name: user.name || name || null
+      }
+    });
+    
+    
     res.cookie('token', token, cookieOptions);
+    
     
      res.status(200).json({
       message: "Success",

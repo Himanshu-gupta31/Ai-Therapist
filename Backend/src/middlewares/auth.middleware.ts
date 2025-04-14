@@ -24,18 +24,19 @@ interface DecodedToken extends JwtPayload {
 
 export const VerifyJWT = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
-    // Get token from cookie, header, or query
+    
     const token = 
       req.cookies?.token || 
       req.header("Authorization")?.replace("Bearer ", "") || 
       req.query.token as string;
+      
       
     if (!token) {
        res.status(401).json({ message: "Authentication required" });
        return
     }
 
-    // Verify the token
+   
     const decodedToken = jwt.verify(token, JWT_SECRET) as DecodedToken;
     
     if (!decodedToken.userId) {
@@ -43,7 +44,6 @@ export const VerifyJWT = async (req: CustomRequest, res: Response, next: NextFun
        return
     }
 
-    // Find user by ID and check if token matches
     const user = await prisma.user.findFirst({
       where: {
         id: decodedToken.userId,

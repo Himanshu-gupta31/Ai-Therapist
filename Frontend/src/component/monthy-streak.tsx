@@ -53,7 +53,7 @@ export function MonthlyStreak({ checkInDates }: MonthlyStreakProps) {
         <Button
           variant="outline"
           size="sm"
-          className="border-amber-200 text-amber-700 hover:bg-amber-50"
+          className="border-teal-200 text-teal-700 hover:bg-teal-50"
           onClick={handlePrevious}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -63,7 +63,7 @@ export function MonthlyStreak({ checkInDates }: MonthlyStreakProps) {
         <Button
           variant="outline"
           size="sm"
-          className="border-amber-200 text-amber-700 hover:bg-amber-50"
+          className="border-teal-200 text-teal-700 hover:bg-teal-50"
           onClick={handleNext}
           disabled={monthsOffset >= 0}
         >
@@ -74,12 +74,12 @@ export function MonthlyStreak({ checkInDates }: MonthlyStreakProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {months.map((month) => (
-          <div key={month.name} className="border border-amber-100 rounded-lg p-4 bg-amber-50/50">
-            <h3 className="text-amber-800 font-medium mb-3">{month.name}</h3>
+          <div key={month.name} className="border border-teal-100 rounded-lg p-4 bg-teal-50/50">
+            <h3 className="text-teal-800 font-medium mb-3">{month.name}</h3>
             <div className="grid grid-cols-7 gap-1">
               {/* Day labels */}
               {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-                <div key={i} className="h-6 flex items-center justify-center text-xs text-amber-600 font-medium">
+                <div key={i} className="h-6 flex items-center justify-center text-xs text-teal-600 font-medium">
                   {day}
                 </div>
               ))}
@@ -103,16 +103,16 @@ export function MonthlyStreak({ checkInDates }: MonthlyStreakProps) {
                         <div
                           className={`
                             h-7 w-7 rounded-md flex items-center justify-center text-xs
-                            ${isToday ? "ring-2 ring-amber-400" : ""}
-                            ${hasCheckIn ? "bg-amber-400 text-amber-900 font-medium" : "bg-amber-100/50 text-amber-700"}
-                            ${isToday && !hasCheckIn ? "bg-amber-200/70" : ""}
+                            ${isToday ? "ring-2 ring-teal-400" : ""}
+                            ${hasCheckIn ? "bg-teal-400 text-teal-900 font-medium" : "bg-teal-100/50 text-teal-700"}
+                            ${isToday && !hasCheckIn ? "bg-teal-200/70" : ""}
                             transition-all duration-200 hover:scale-110
                           `}
                         >
                           {day.getDate()}
                         </div>
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="bg-amber-800 text-amber-50 border-amber-700">
+                      <TooltipContent side="top" className="bg-teal-800 text-teal-50 border-teal-700">
                         <p>{format(day, "EEEE, MMMM d, yyyy")}</p>
                         <p className="text-xs mt-1">{hasCheckIn ? "Checked in ✓" : "No check-in"}</p>
                       </TooltipContent>
@@ -127,12 +127,12 @@ export function MonthlyStreak({ checkInDates }: MonthlyStreakProps) {
 
       <div className="flex justify-center gap-4 pt-2">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-amber-100/50"></div>
-          <span className="text-xs text-amber-700">No check-in</span>
+          <div className="w-4 h-4 rounded-sm bg-teal-100/50"></div>
+          <span className="text-xs text-teal-700">No check-in</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-amber-400"></div>
-          <span className="text-xs text-amber-700">Checked in</span>
+          <div className="w-4 h-4 rounded-sm bg-teal-400"></div>
+          <span className="text-xs text-teal-700">Checked in</span>
         </div>
       </div>
     </div>

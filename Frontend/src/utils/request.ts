@@ -9,6 +9,7 @@ export const newRequest=axios.create({
 })
 
 const api=axios.create({
-    baseURL:"http://localhost:8000/api/v1"
+    baseURL:"http://localhost:8000/api/v1",
+    withCredentials:true,
 })
 export const googleAuth = (code: any) => api.get(`/users/google?code=${code}`)
