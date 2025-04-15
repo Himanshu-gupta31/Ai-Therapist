@@ -45,7 +45,7 @@ export const updatedStreak = async (req: Request, res: Response) => {
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays === 1) {
-        newStreak = (checkuser.streak || 0) + 1;
+        newStreak = (checkuser.streak || 1) + 1;
       } else {
         newStreak = 1;
       }

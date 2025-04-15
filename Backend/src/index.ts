@@ -30,11 +30,13 @@ import userRouter from "./routes/userRouter";
 import habitRouter from "./routes/habitRoute"
 import chatRouter from "./routes/chatRoute"
 import dailyPlanRoute from './routes/dailyPlanRoute'
+import googleRoute from './routes/googleRoute'
 // Router Declaration
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/habit",habitRouter)
 app.use("/api/v1/chat",chatRouter)
 app.use("/api/v1/daily",dailyPlanRoute)
+app.use("/api/v1/google",googleRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is running at Port ${PORT}`);

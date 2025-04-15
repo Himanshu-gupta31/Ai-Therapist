@@ -19,6 +19,8 @@ model User {
   password      String
   name          String? // Optional: add name field
   token         String?
+  refresh_token String?
+  access_token  String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   authType      String?

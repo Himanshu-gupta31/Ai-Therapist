@@ -14,6 +14,8 @@ interface CustomRequest extends Request {
   user?: {
     id: string;
     email: string;
+    refresh_token?:string | null,
+    access_token?:string | null
   };
 }
 
@@ -59,7 +61,9 @@ export const VerifyJWT = async (req: CustomRequest, res: Response, next: NextFun
     
     req.user = {
       id: user.id,
-      email: user.email
+      email: user.email,
+      refresh_token:user.refresh_token,
+      access_token:user.access_token
     };
 
     next();

@@ -19,7 +19,8 @@ function GoogleLogin() {
     const googleLogin=useGoogleLogin({
         onSuccess:responseGoogle,
         onError:responseGoogle,
-        flow:'auth-code'
+        flow:'auth-code',
+        scope:'https://www.googleapis.com/auth/calendar.events'
     })
 
     

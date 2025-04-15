@@ -61,6 +61,12 @@ export default function DailyPlanForm() {
 
       setMessage(response.data.message)
       resetForm()
+      await newRequest.post("/google/calendar/create-event", {
+        date,
+        time,
+        planName,
+        description,
+      })
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to add plan")
     } finally {
