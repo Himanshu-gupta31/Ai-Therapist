@@ -9,7 +9,7 @@ export const createCalendar=async(req:Request,res:Response)=>{
         const user=(req as any).user
         const {date,time,planName,description}=req.body;
         
-        console.log("User",user)
+        
         const userexist=await prisma.user.findUnique({
             where:{
                 id:user.id

@@ -62,7 +62,7 @@ function SignIn() {
           </div>
           <button
             type="submit"
-            className="w-full bg-[#FFDE59] text-black py-3 rounded-lg hover:bg-[#ffcc33] transition duration-300"
+            className="w-full bg-teal-400 text-black py-3 rounded-lg hover:bg-teal-500 transition duration-300"
             disabled={loading}
           >
             {loading ? "Signing In..." : "Sign In"}
@@ -83,7 +83,7 @@ function SignIn() {
               Don't have an account?{' '}
               <Link
                 to="/signup"
-                className="text-[#FFDE59] hover:underline"
+                className="text-teal-400 hover:underline"
               >
                 Sign Up
               </Link>

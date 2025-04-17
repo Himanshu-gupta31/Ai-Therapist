@@ -28,8 +28,7 @@ const googleLogin = async (req: Request, res: Response) => {
     }
     
     const googleRes = await oauth2client.getToken(code as string);
-    console.log(googleRes)
-    console.log(googleRes.tokens)
+    
     oauth2client.setCredentials(googleRes.tokens);
 
     
@@ -39,8 +38,7 @@ const googleLogin = async (req: Request, res: Response) => {
     
     const { email, name } = userRes.data;
     const {access_token,refresh_token}=googleRes.tokens
-    console.log("acc",access_token)
-    console.log("ref",refresh_token)
+    
     let user = await prisma.user.findUnique({
       where: { email }
     });

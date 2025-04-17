@@ -50,7 +50,7 @@ function SignUp() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFDE59]"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
               required
             />
           </div>
@@ -61,13 +61,13 @@ function SignUp() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFDE59]"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
               required
             />
           </div>
           <button
             type="submit"
-            className={`w-full bg-[#FFDE59] text-black py-3 rounded-lg hover:bg-[#ffcc33] transition duration-300 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`w-full bg-teal-400 text-black py-3 rounded-lg hover:bg-teal-500 transition duration-300 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={loading}
           >
             {loading ? "Signing Up..." : "Sign Up"}
@@ -88,7 +88,7 @@ function SignUp() {
               Already have an account?{' '}
               <Link
                 to="/signin"
-                className="text-[#FFDE59] hover:underline"
+                className="text-teal-400 hover:underline"
               >
                 Sign In
               </Link>

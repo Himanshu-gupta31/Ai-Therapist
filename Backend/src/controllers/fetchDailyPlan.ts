@@ -14,6 +14,7 @@ export const fetchDailyPlan=async(req:Request,res:Response)=>{
                 userId:user.id
             },
             select:{
+                id:true,
                 date:true,
                 planName:true,
                 priority:true,

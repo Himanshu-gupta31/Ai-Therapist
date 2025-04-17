@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import {
   Clock,
@@ -20,7 +19,6 @@ import { motion } from "framer-motion"
 import Lottie from "lottie-react"
 import { MonthlyStreak } from "@/component/monthy-streak"
 
-
 // You'll need to update the path to your fire animation
 import fireAnimation from "@/assets/Fire.json"
 import { Link, useNavigate } from "react-router-dom"
@@ -32,6 +30,7 @@ interface Habit {
 }
 
 interface DailyPlan {
+  id:string
   date: Date
   planName: string
   priority: string
@@ -115,7 +114,7 @@ export default function UnifiedDashboard() {
       setPlanLoading(false)
     }
   }
-
+  
   // Fetch streak data
   const fetchStreak = async () => {
     try {
@@ -177,7 +176,19 @@ export default function UnifiedDashboard() {
       console.error("Error updating streak:", error)
     }
   }
-
+  // delete Habit
+  const handleDeletePlan = async (planId: string) => {
+    try {
+      setDeleteLoading(planId)
+      await newRequest.delete(`/daily/deleteplan/${planId}`)
+      setDeleteLoading(null)
+      fetchPlan()
+    } catch (error) {
+      setPlanError("Failed to delete plan")
+      console.error("Error deleting plan:", error)
+      setDeleteLoading(null)
+    }
+  }
   // Toggle habit completion
   const habitCompletion = (habitId: string) => {
     const updatedHabits = {
@@ -365,7 +376,7 @@ export default function UnifiedDashboard() {
               <h2 className="ml-2 text-xl font-bold text-teal-900">My Habits</h2>
             </div>
             <div>
-              <Link to="/" >
+              {/* Removed the Link and modified to open the modal directly */}
               <Button
                 onClick={() => {
                   setShowModal(true)
@@ -376,7 +387,6 @@ export default function UnifiedDashboard() {
                 <CirclePlus className="mr-2" />
                 Add Habit
               </Button>
-              </Link>
             </div>
           </div>
 
@@ -521,6 +531,11 @@ export default function UnifiedDashboard() {
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColor(plan.priority)}`}>
                           {plan.priority} Priority
                         </span>
+                      <div className="justify-end">
+                        <button onClick={()=>plan.id && handleDeletePlan(plan.id)} className="text-gray-500 hover:text-red-600">
+                        <Trash2/>
+                        </button>
+                      </div>
                       </div>
                     </div>
 

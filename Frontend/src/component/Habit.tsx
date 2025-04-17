@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { newRequest } from "@/utils/request";
-import { CircleCheck, CirclePlus, Trash2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CircleCheck, CirclePlus,  X } from "lucide-react";
+import {  useState } from "react";
 
 
 interface Habit {
@@ -38,36 +38,36 @@ function Habit() {
     "Socialising",
   ];
 
-  useEffect(() => {
-    fetchHabits();
-  }, []);
+  // useEffect(() => {
+  //   fetchHabits();
+  // }, []);
 
-  const fetchHabits = async () => {
-    try {
-      setLoading(true);
-      const response = await newRequest.get("/habit/getHabit");
-      setHabit(response.data.getHabit);
-      setError("");
-    } catch (error) {
-      setError("Failed to load Habits");
-      console.error("Error fetching habits:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchHabits = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await newRequest.get("/habit/getHabit");
+  //     setHabit(response.data.getHabit);
+  //     setError("");
+  //   } catch (error) {
+  //     setError("Failed to load Habits");
+  //     console.error("Error fetching habits:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const deleteHabits = async (habitId: string) => {
-    try {
-      setDeleteLoading(habitId);
-      await newRequest.delete(`/habit/deleteHabit/${habitId}`);
-      setDeleteLoading(null);
-      fetchHabits();
-    } catch (error) {
-      setError("Failed to delete Habit");
-      console.error("Error deleting habits:", error);
-      setDeleteLoading(null);
-    }
-  };
+  // const deleteHabits = async (habitId: string) => {
+  //   try {
+  //     setDeleteLoading(habitId);
+  //     await newRequest.delete(`/habit/deleteHabit/${habitId}`);
+  //     setDeleteLoading(null);
+  //     fetchHabits();
+  //   } catch (error) {
+  //     setError("Failed to delete Habit");
+  //     console.error("Error deleting habits:", error);
+  //     setDeleteLoading(null);
+  //   }
+  // };
 
   const addHabitHandler = async () => {
     try {
@@ -83,7 +83,7 @@ function Habit() {
       setSuggestionFilter("");
       setShowModal(false);
       setError("");
-      fetchHabits();
+      
     } catch (error) {
       setError("Failed to add habit");
       console.error("Error adding habit:", error);
@@ -133,7 +133,7 @@ function Habit() {
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        {/* <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {loading && habits.length === 0 ? (
             <div className="p-8 text-center">
               <div className="animate-spin h-8 w-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -180,7 +180,7 @@ function Habit() {
               ))}
             </ul>
           )}
-        </div>
+        </div> */}
       </div>
 
       {showModal && (
