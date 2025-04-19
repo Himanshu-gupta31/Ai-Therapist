@@ -63,7 +63,10 @@ export default function UnifiedDashboard() {
   const [dailyplan, setDailyPlan] = useState<DailyPlan[]>([])
   const [planLoading, setPlanLoading] = useState(false)
   const [planError, setPlanError] = useState("")
-
+  const [selectedDate,setSelectedDate]=useState(()=>{
+    const today=new Date();
+    return today.toISOString().split("T")[0]
+  })
   // Habit suggestions
   const habitSuggestion = [
     "Yoga",
@@ -79,54 +82,70 @@ export default function UnifiedDashboard() {
     "Haircare",
     "Socialising",
   ]
-
+  
   // Filter suggestions based on input
   const filteredSuggestions = habitSuggestion.filter((suggestion) =>
     suggestion.toLowerCase().includes(suggestionFilter.toLowerCase()),
-  )
+)
 
-  // Fetch habits
-  const fetchHabits = async () => {
-    try {
-      setLoading(true)
-      const response = await newRequest.get("/habit/getHabit")
-      setHabits(response.data.getHabit)
-      setError("")
-    } catch (error) {
-      setError("Failed to load Habits")
-      console.error("Error fetching habits:", error)
-    } finally {
-      setLoading(false)
-    }
+// Fetch habits
+const fetchHabits = async () => {
+  try {
+    setLoading(true)
+    const response = await newRequest.get("/habit/getHabit")
+    setHabits(response.data.getHabit)
+    setError("")
+  } catch (error) {
+    setError("Failed to load Habits")
+    console.error("Error fetching habits:", error)
+  } finally {
+    setLoading(false)
   }
+}
 
-  // Fetch daily plans
-  const fetchPlan = async () => {
-    try {
-      setPlanLoading(true)
-      const response = await newRequest.get("/daily/fetchPlan")
-      setDailyPlan(response.data.fetchPlan)
-      setPlanError("")
-    } catch (error) {
-      setPlanError("Failed to load daily plan")
-      console.log("Error fetching plan", error)
-    } finally {
-      setPlanLoading(false)
-    }
+// Fetch daily plans
+const fetchPlan = async () => {
+  try {
+    setPlanLoading(true)
+    const response = await newRequest.get("/daily/fetchPlan")
+    setDailyPlan(response.data.fetchPlan)
+    setPlanError("")
+  } catch (error) {
+    setPlanError("Failed to load daily plan")
+    console.log("Error fetching plan", error)
+  } finally {
+    setPlanLoading(false)
   }
+}
+
+// Fetch streak data
+const fetchStreak = async () => {
+  try {
+    const response = await newRequest.get("/users/streak")
+    setStreak(response.data.formattedUser.streak)
+    setLongestStreak(response.data.formattedUser.longestStreak)
+    setLastCheckedIn(response.data.formattedUser.lastCheckIn)
+    setCheckInDates(response.data.formattedUser.checkInDates || [])
+  } catch (error) {
+    console.error("Error fetching streak:", error)
+  }
+}
+//Daily plan for each date
+const changeDate=(days:number)=>{
+  const newDate=new Date(selectedDate);
+  newDate.setDate(newDate.getDate() + days)
   
-  // Fetch streak data
-  const fetchStreak = async () => {
-    try {
-      const response = await newRequest.get("/users/streak")
-      setStreak(response.data.formattedUser.streak)
-      setLongestStreak(response.data.formattedUser.longestStreak)
-      setLastCheckedIn(response.data.formattedUser.lastCheckIn)
-      setCheckInDates(response.data.formattedUser.checkInDates || [])
-    } catch (error) {
-      console.error("Error fetching streak:", error)
-    }
+  const today=new Date().toISOString().split("T")[0]
+  const newDateStr=newDate.toISOString().split("T")[0]
+
+  if(newDateStr <= today){
+    setSelectedDate(newDateStr)
   }
+}
+const planForSelectedDate=dailyplan.filter(plan =>{
+  const planDateStr = new Date(plan.date).toISOString().split("T")[0];
+  return planDateStr===selectedDate
+})
 
   // Delete habit
   const deleteHabits = async (habitId: string) => {
@@ -480,6 +499,31 @@ export default function UnifiedDashboard() {
         </div>
 
         {/* Daily Plans Section */}
+        <div className="flex justify-between items-center mb-6 px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-200 via-yellow-100 to-yellow-50 shadow-md border border-yellow-300">
+  <button
+    onClick={() => changeDate(-1)}
+    className="text-sm font-medium px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition duration-200 shadow"
+  >
+    ← Previous Day
+  </button>
+
+  <h2 className="text-base sm:text-lg font-semibold text-teal-800 text-center">
+    {new Date(selectedDate).toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })}
+  </h2>
+
+  <button
+    onClick={() => changeDate(1)}
+    className="text-sm font-medium px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition duration-200 shadow"
+  >
+    Next Day →
+  </button>
+</div>
+
         <div className="mb-10">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
@@ -503,50 +547,48 @@ export default function UnifiedDashboard() {
                   <CalendarDays className="h-8 w-8 text-teal-400" />
                 </div>
                 <p className="text-gray-500 mb-2">No plans found</p>
-                <p className="text-gray-400 text-sm">Start organizing your day by adding your first plan</p>
+                <p className="text-gray-400 text-sm">S tart organizing your day by adding your first plan</p>
               </div>
             )}
 
-            {dailyplan.map((plan, index) => (
-              <div
-                key={index}
-                className="border border-teal-200 rounded-xl p-4 bg-white shadow-sm w-full hover:shadow-md transition-all duration-300"
-              >
-                <div className="flex items-start">
-                  <div className="mt-1 mr-3">
-                    <div className="w-6 h-6 rounded-full border-2 border-teal-200 flex items-center justify-center">
-                      
-                    </div>
-                  </div>
+{planForSelectedDate.length > 0 ? (
+  planForSelectedDate.map((plan, index) => (
+    <div key={index} className="border p-4 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-300">
+      <div className="flex items-start">
+        <div className="mt-1 mr-3">
+          <div className="w-6 h-6 rounded-full border-2 border-teal-200 flex items-center justify-center" />
+        </div>
 
-                  <div className="flex-1 flex justify-between">
-                    <div>
-                      <h3 className="text-lg font-medium text-teal-900">{plan.planName}</h3>
-                      <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
+        <div className="flex-1 flex justify-between">
+          <div>
+            <h3 className="text-lg font-medium text-teal-900">{plan.planName}</h3>
+            <p className="text-gray-500 text-sm mt-1">{plan.description}</p>
 
-                      <div className="flex gap-2 mt-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${categoryColor(plan.category)}`}>
-                          {plan.category}
-                        </span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColor(plan.priority)}`}>
-                          {plan.priority} Priority
-                        </span>
-                      <div className="justify-end">
-                        <button onClick={()=>plan.id && handleDeletePlan(plan.id)} className="text-gray-500 hover:text-red-600">
-                        <Trash2/>
-                        </button>
-                      </div>
-                      </div>
-                    </div>
+            <div className="flex gap-2 mt-3 items-center">
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${categoryColor(plan.category)}`}>
+                {plan.category}
+              </span>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColor(plan.priority)}`}>
+                {plan.priority} Priority
+              </span>
+              <button onClick={() => plan.id && handleDeletePlan(plan.id)} className="text-gray-500 hover:text-red-600">
+                <Trash2 />
+              </button>
+            </div>
+          </div>
 
-                    <div className="flex items-start ml-6">
-                      <Clock className="w-4 h-4 mr-1 text-teal-400" />
-                      <span className="text-gray-500 text-sm">{plan.time}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-start ml-6">
+            <Clock className="w-4 h-4 mr-1 text-teal-400" />
+            <span className="text-gray-500 text-sm">{plan.time}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))
+) : (
+  <p className="text-gray-400 text-center mt-6">No plans for this date.</p>
+)}
+
           </div>
         </div>
 
