@@ -8,8 +8,8 @@ export const addDailyPlan=async(req:Request,res:Response)=>{
             res.status(401).json({message:"Unauthorized access"})
             return
         }
-        const {date,planName,time,priority,category,description}=req.body;
-        if(!date || !planName || !time || !priority || !category){
+        const {date,planName,startingtime,priority,category,description,endtime}=req.body;
+        if(!date || !planName || !startingtime || !priority || !category || !endtime){
             res.status(402).json({message:"Required field must be filled"})
             return;
         }
@@ -19,10 +19,11 @@ export const addDailyPlan=async(req:Request,res:Response)=>{
                 date:new Date(date),
                 description:description,
                 planName:planName,
-                time:time,
+                startingtime:startingtime,
                 priority:priority,
                 category:category,
-                userId:user.id
+                userId:user.id,
+                endtime:endtime
             }
         })
         if(!addPlan){

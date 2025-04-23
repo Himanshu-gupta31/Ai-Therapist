@@ -1,111 +1,143 @@
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { newRequest } from "@/utils/request"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { CalendarIcon, Clock, CheckCircle, AlertCircle } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useState } from "react";
+import { newRequest } from "@/utils/request";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CalendarIcon, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function DailyPlanForm() {
   // Individual state for each input field
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0])
-  const [planName, setPlanName] = useState("")
-  const [time, setTime] = useState("")
-  const [priority, setPriority] = useState("")
-  const [category, setCategory] = useState("")
-  const [description, setDescription] = useState("")
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [planName, setPlanName] = useState("");
+  const [startingtime, setStartingTime] = useState("");
+  const [endtime,setEndTime]=useState("")
+  const [priority, setPriority] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  
 
   // UI state
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState("")
-  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   // Individual handlers for each input field
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setDate(e.target.value)
-  const handlePlanNameChange = (e: React.ChangeEvent<HTMLInputElement>) => setPlanName(e.target.value)
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => setTime(e.target.value)
-  const handlePriorityChange = (value: string) => setPriority(value)
-  const handleCategoryChange = (value:string) => setCategory(value)
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setDate(e.target.value);
+  const handlePlanNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setPlanName(e.target.value);
+  const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setStartingTime(e.target.value);
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEndTime(e.target.value);
+  const handlePriorityChange = (value: string) => setPriority(value);
+  const handleCategoryChange = (value: string) => setCategory(value);
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setDescription(e.target.value);
+  
 
   const resetForm = () => {
-    setDate(new Date().toISOString().split("T")[0])
-    setPlanName("")
-    setTime("")
-    setPriority("")
-    setCategory("")
-    setDescription("")
-  }
+    setDate(new Date().toISOString().split("T")[0]);
+    setPlanName("");
+    setStartingTime("")
+    setEndTime("")
+    setPriority("");
+    setCategory("");
+    setDescription("");
+    
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage("")
-    setError("")
+    e.preventDefault(); 
+    setLoading(true);
+    setMessage("");
+    setError("");
 
     try {
       const response = await newRequest.post("/daily/addplan", {
         date,
         planName,
-        time,
+        startingtime,
+        endtime,
         priority,
         category,
         description,
-      })
+     
+      });
 
-      setMessage(response.data.message)
-      resetForm()
+      setMessage(response.data.message);
+      resetForm();
       await newRequest.post("/google/calendar/create-event", {
         date,
-        time,
+        startingtime,
+        endtime,
         planName,
         description,
-      })
+       
+      });
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to add plan")
+      setError(err.response?.data?.message || "Failed to add plan");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "High":
-        return "text-red-500"
+        return "text-red-500";
       case "Medium":
-        return "text-amber-500"
+        return "text-amber-500";
       case "Low":
-        return "text-green-500"
+        return "text-green-500";
       default:
-        return ""
+        return "";
     }
-  }
+  };
   const categoryColor = (category: string) => {
     switch (category) {
       case "Health":
-        return "bg-blue-100 text-blue-600"
+        return "bg-blue-100 text-blue-600";
       case "Work":
-        return "bg-teal-100 text-indigo-600"
+        return "bg-teal-100 text-indigo-600";
       case "Personal":
-        return "bg-emerald-100 text-emerald-600"
+        return "bg-emerald-100 text-emerald-600";
       case "Study":
-        return "bg-cyan-100 text-cyan-600"
+        return "bg-cyan-100 text-cyan-600";
       default:
-        return "bg-teal-100 text-teal-600"
+        return "bg-teal-100 text-teal-600";
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-lg mt-6 py-0">
       <CardHeader className="space-y-1 bg-gradient-to-r from-teal-50 to-teal-100 border-b pt-2 ">
-        <CardTitle className="text-2xl font-bold text-center">Daily Plan</CardTitle>
-        <CardDescription className="text-center pb-2">Add a new task to your daily schedule</CardDescription>
+        <CardTitle className="text-2xl font-bold text-center">
+          Daily Plan
+        </CardTitle>
+        <CardDescription className="text-center pb-2">
+          Add a new task to your daily schedule
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="pt-6">
@@ -113,7 +145,9 @@ export default function DailyPlanForm() {
           <Alert className="mb-6 bg-green-50 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertTitle className="text-green-800">Success</AlertTitle>
-            <AlertDescription className="text-green-700">{message}</AlertDescription>
+            <AlertDescription className="text-green-700">
+              {message}
+            </AlertDescription>
           </Alert>
         )}
 
@@ -121,7 +155,9 @@ export default function DailyPlanForm() {
           <Alert className="mb-6 bg-red-50 border-red-200">
             <AlertCircle className="h-4 w-4 text-red-600" />
             <AlertTitle className="text-red-800">Error</AlertTitle>
-            <AlertDescription className="text-red-700">{error}</AlertDescription>
+            <AlertDescription className="text-red-700">
+              {error}
+            </AlertDescription>
           </Alert>
         )}
 
@@ -145,19 +181,36 @@ export default function DailyPlanForm() {
             <div className="space-y-2">
               <Label htmlFor="time" className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-slate-500" />
-                Time
+                Starting Time
               </Label>
               <Input
                 id="time"
                 type="time"
-                value={time}
-                onChange={handleTimeChange}
+                value={startingtime}
+                onChange={handleStartTimeChange}
+                className="focus-visible:ring-slate-400"
+                step="60"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="time" className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-slate-500" />
+                Ending Time
+              </Label>
+              <Input
+                id="time"
+                type="time"
+                value={endtime}
+                onChange={handleEndTimeChange}
                 className="focus-visible:ring-slate-400"
                 step="60"
                 required
               />
             </div>
           </div>
+
+          
 
           <div className="space-y-2">
             <Label htmlFor="planName">Plan Name</Label>
@@ -175,10 +228,17 @@ export default function DailyPlanForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={handlePriorityChange} required>
+              <Select
+                value={priority}
+                onValueChange={handlePriorityChange}
+                required
+              >
                 <SelectTrigger
                   id="priority"
-                  className={cn("focus-visible:ring-slate-400", priority && getPriorityColor(priority))}
+                  className={cn(
+                    "focus-visible:ring-slate-400",
+                    priority && getPriorityColor(priority)
+                  )}
                 >
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
@@ -197,11 +257,18 @@ export default function DailyPlanForm() {
             </div>
 
             <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={handleCategoryChange} required>
+              <Label htmlFor="category">Category</Label>
+              <Select
+                value={category}
+                onValueChange={handleCategoryChange}
+                required
+              >
                 <SelectTrigger
                   id="priority"
-                  className={cn("focus-visible:ring-slate-400", category && categoryColor(category))}
+                  className={cn(
+                    "focus-visible:ring-slate-400",
+                    category && categoryColor(category)
+                  )}
                 >
                   <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
@@ -235,12 +302,17 @@ export default function DailyPlanForm() {
           </div>
 
           <CardFooter className="px-0 pt-2 mb-4">
-            <Button type="submit" disabled={loading} className="w-full transition-all duration-200 bg-teal-500" variant="default">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full transition-all duration-200 bg-teal-500"
+              variant="default"
+            >
               {loading ? "Adding..." : "Add to Schedule"}
             </Button>
           </CardFooter>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

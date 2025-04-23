@@ -7,7 +7,7 @@ import { oauth2client } from "../utils/googleConfig";
 export const createCalendar=async(req:Request,res:Response)=>{
     try {
         const user=(req as any).user
-        const {date,time,planName,description}=req.body;
+        const {date,time,planName,description,endtime,startingtime}=req.body;
         
         
         const userexist=await prisma.user.findUnique({
@@ -26,8 +26,8 @@ export const createCalendar=async(req:Request,res:Response)=>{
 
           const calendar=google.calendar({version:"v3",auth:oauth2client})
 
-          const eventStart=new Date(`${date}T${time}`);
-          const eventEnd=new Date(eventStart.getTime()+60*60*1000)
+          const eventStart=new Date(`${date}T${startingtime}`);
+          const eventEnd=new Date(`${date}T${endtime}`)
 
           const event={
             summary:planName,

@@ -46,11 +46,12 @@ model DailyPlanner {
   userId      String
   date        DateTime
   planName    String
-  time        String
+  endtime     String
+  startingtime String
   description String?
   priority    String
   category    String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId,date,time])
+  @@unique([userId,date,startingtime])
 }

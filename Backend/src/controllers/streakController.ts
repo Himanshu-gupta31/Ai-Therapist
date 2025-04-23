@@ -8,19 +8,16 @@ export const updatedStreak = async (req: Request, res: Response) => {
       res.status(400).json({ message: "Unauthorized Access" });
       return;
     }
-
     const checkuser = await prisma.user.findUnique({
       where: { id: user.id },
     });
-
     if (!checkuser) {
       res.status(404).json({ message: "User not found." });
       return;
     }
-
     const now = new Date();
     const todayUTC = now.toISOString().split("T")[0];
-
+    
     // If user already checked in today, don't modify the streak
     if (checkuser.checkInDates.includes(todayUTC)) {
       res.status(200).json({
@@ -30,29 +27,31 @@ export const updatedStreak = async (req: Request, res: Response) => {
       });
       return;
     }
-
+    
+    // Sort dates in ascending order
     const sortedDates = [...checkuser.checkInDates].sort();
     let newStreak = 1;
-
-    if (sortedDates.length >= 1) {
+    
+    if (sortedDates.length > 0) {
+      // Compare most recent check-in with today
       const lastDateStr = sortedDates[sortedDates.length - 1];
-      const secondLastDateStr = sortedDates[sortedDates.length - 2];
-
       const lastDate = new Date(lastDateStr);
-      const secondLastDate = new Date(secondLastDateStr);
-
-      const diffTime = lastDate.getTime() - secondLastDate.getTime();
+      const today = new Date(todayUTC);
+      
+      // Calculate difference in days
+      const diffTime = today.getTime() - lastDate.getTime();
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
+      
       if (diffDays === 1) {
+        // Consecutive day, increment streak
         newStreak = (checkuser.streak || 1) + 1;
-      } else {
+      } else if (diffDays > 1) {
+        // Missed days, reset streak
         newStreak = 1;
       }
     }
-
+    
     const updatedCheckInDates = Array.from(new Set([...checkuser.checkInDates, todayUTC]));
-
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -64,7 +63,7 @@ export const updatedStreak = async (req: Request, res: Response) => {
         },
       },
     });
-
+    
     res.status(200).json({
       message: "Streak Updated Successfully",
       streak: newStreak,

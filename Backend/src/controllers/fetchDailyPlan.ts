@@ -19,7 +19,8 @@ export const fetchDailyPlan=async(req:Request,res:Response)=>{
                 planName:true,
                 priority:true,
                 description:true,
-                time:true,
+                startingtime:true,
+                endtime:true,
                 category:true
             }
         })
