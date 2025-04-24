@@ -11,7 +11,7 @@ import Dashboard from "./Pages/Dashboard"
 import DailyPlanForm from "./Pages/DailyPlan"
 
 
-function App() {
+function  App() {
   return (
     // Wrap the entire app with GoogleOAuthProvider so all components have access
     <GoogleOAuthProvider clientId="827631968097-k3kjnva2p203242qc75oapuj0bqcegh6.apps.googleusercontent.com">

@@ -1,23 +1,91 @@
-import {motion} from "motion/react"
+import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion"
+import { Calendar, CheckCircle, TrendingUp } from "lucide-react"
+
 function HomeSection() {
-    return (
-      <div className="w-full px-4">
-        <div className="flex flex-col min-h-screen justify-center items-center text-center">
-          <motion.h1
-          initial={{opacity:0,y:-50}}
-          animate={{opacity:1,y:0}}
-          transition={{duration:1.2}}
-          className="text-5xl font-bold text-[#333333] mb-6">Discover Your Screen Time Future</motion.h1>
-          <p className="text-lg text-[#666666] max-w-2xl mb-10 px-4">
-            Enter your daily screen time and problems to see how your life could look in the next 30 years — along with solutions to help you reduce it.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-teal-500 text-white px-6 py-3 rounded-2xl shadow-md hover:bg-teal-700/80 border border-teal-700">Get Started</button>
-            <button className="bg-transparent border border-[#333333] text-[#333333] px-6 py-3 rounded-2xl hover:bg-[#e0e0e0]">Learn More</button>
+  return (
+    <div className="w-full bg-black min-h-screen">
+      {/* Light Effect// */}
+      <div className="w-full h-140 flex justify-center items-center flex-col relative text-center px-4 ">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-linear-to-r from-green-500/20 to-cyan-500/10 blur-[100px]" />
+          <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-linear-to-r from-green-400/10 to-cyan-300/5 blur-[80px]" />
+        </div>
+
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.6 }} 
+          className="text-white text-5xl font-bold z-10"
+        >
+          Build Better Habits,<br />
+          <span className="text-green-500">Transform Your Life</span>
+        </motion.h1>
+
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ delay: 0.3, duration: 0.6 }} 
+          className="text-white mt-4 max-w-xl z-10"
+        >
+          Track, analyze, and improve your daily habits with our intuitive platform designed to help you achieve your goals.
+        </motion.p>
+
+        <motion.div 
+          className="flex gap-4 mt-8 z-10 flex-wrap justify-center" 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 0.6, duration: 0.6 }}
+        >
+          <Button className="bg-green-700">Get Started Free</Button>
+          <Button className="bg-white text-green-400">See How it Works
+          <TrendingUp className="h-8 w-8 text-green-500" />
+          </Button>
+        </motion.div>
+      </div>
+      {/* Features */}
+      <div className="py-20 bg-black/80 text-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
+            Features That <span className="text-green-500">Drive Results</span>
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-green-800 transition-all">
+              <div className="bg-green-600/10 p-3 rounded-lg w-fit mb-6">
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-4">Habit Tracking</h3>
+              <p className="text-gray-400">
+                Easily track your daily habits with our intuitive interface. Set goals and monitor your progress over
+                time.
+              </p>
+            </div>
+
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-green-800 transition-all">
+              <div className="bg-green-600/10 p-3 rounded-lg w-fit mb-6">
+                <TrendingUp className="h-8 w-8 text-green-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-4">Insightful Analytics</h3>
+              <p className="text-gray-400">
+                Gain valuable insights with detailed analytics that help you understand your behavior patterns.
+              </p>
+            </div>
+
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-green-800 transition-all">
+              <div className="bg-green-600/10 p-3 rounded-lg w-fit mb-6">
+                <Calendar className="h-8 w-8 text-green-500" />
+              </div>
+              <h3 className="text-xl font-bold mb-4">Smart Reminders</h3>
+              <p className="text-gray-400">
+                Never miss a habit with customizable reminders that adapt to your schedule and preferences.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    )
-  }
-  
-  export default HomeSection
+    </div>
+  )
+}
+
+export default HomeSection
