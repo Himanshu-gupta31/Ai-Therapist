@@ -11,6 +11,7 @@ import Dashboard from "./Pages/Dashboard"
 import DailyPlanForm from "./Pages/DailyPlan"
 
 
+
 function  App() {
   return (
     // Wrap the entire app with GoogleOAuthProvider so all components have access
@@ -26,6 +27,7 @@ function  App() {
           <Route path="/screenassistant" element={<ScreenTimeAssistant/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/dailyplan" element={<DailyPlanForm/>}/>
+          
           
 
         </Routes>

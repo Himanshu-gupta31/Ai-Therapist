@@ -26,10 +26,7 @@ model User {
   authType      String?
   screenTime    Int?           @default(0)
   habits        Habit[]
-  streak        Int            @default(0)
-  longestStreak Int            @default(0)
-  lastCheckIn   DateTime?
-  checkInDates  String[]       @default([])
+  
   dailyPlanner  DailyPlanner[]
 }
 
@@ -38,6 +35,10 @@ model Habit {
   habitName   String
   userId      String
   description String
+  streak        Int            @default(0)
+  longestStreak Int            @default(0)
+  lastCheckIn   DateTime?
+  checkInDates  String[]       @default([])
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -54,4 +55,15 @@ model DailyPlanner {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId,date,startingtime])
+}
+model Quote {
+  id        String   @id @default(uuid())
+  text      String
+  type      QuoteType
+  createdAt DateTime @default(now())
+}
+
+enum QuoteType {
+  MOTIVATIONAL
+  ROAST
 }

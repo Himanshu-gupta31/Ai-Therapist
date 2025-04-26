@@ -4,115 +4,131 @@ import { prisma } from "../db/db";
 export const updatedStreak = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
+    const habitId = req.params.habitId;
+
     if (!user) {
       res.status(400).json({ message: "Unauthorized Access" });
       return;
     }
-    const checkuser = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
-    if (!checkuser) {
-      res.status(404).json({ message: "User not found." });
+
+    if (!habitId) {
+      res.status(400).json({ message: "Habit ID is required" });
       return;
     }
+
+    const habit = await prisma.habit.findUnique({
+      where: { id: habitId },
+    });
+
+    if (!habit || habit.userId !== user.id) {
+      res.status(404).json({ message: "Habit not found" });
+      return;
+    }
+
     const now = new Date();
     const todayUTC = now.toISOString().split("T")[0];
-    
-    // If user already checked in today, don't modify the streak
-    if (checkuser.checkInDates.includes(todayUTC)) {
+
+    if (habit.checkInDates.includes(todayUTC)) {
       res.status(200).json({
         message: "Already checked in today",
-        streak: checkuser.streak,
-        longestStreak: checkuser.longestStreak,
+        streak: habit.streak,
+        longestStreak: habit.longestStreak,
+        checkInDates:habit.checkInDates
       });
       return;
     }
-    
-    // Sort dates in ascending order
-    const sortedDates = [...checkuser.checkInDates].sort();
+
+    const sortedDates = [...habit.checkInDates].sort();
     let newStreak = 1;
-    
+
     if (sortedDates.length > 0) {
-      // Compare most recent check-in with today
       const lastDateStr = sortedDates[sortedDates.length - 1];
       const lastDate = new Date(lastDateStr);
       const today = new Date(todayUTC);
-      
-      // Calculate difference in days
-      const diffTime = today.getTime() - lastDate.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      
+
+      const diffDays = Math.floor(
+        (today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       if (diffDays === 1) {
-        // Consecutive day, increment streak
-        newStreak = (checkuser.streak || 1) + 1;
+        newStreak = (habit.streak || 1) + 1;
       } else if (diffDays > 1) {
-        // Missed days, reset streak
         newStreak = 1;
       }
     }
-    
-    const updatedCheckInDates = Array.from(new Set([...checkuser.checkInDates, todayUTC]));
-    await prisma.user.update({
-      where: { id: user.id },
+
+    const updatedCheckInDates = Array.from(
+      new Set([...habit.checkInDates, todayUTC])
+    );
+
+    const updatedHabit = await prisma.habit.update({
+      where: { id: habit.id },
       data: {
         streak: newStreak,
-        longestStreak: Math.max(checkuser.longestStreak || 0, newStreak),
+        longestStreak: Math.max(habit.longestStreak || 0, newStreak),
         lastCheckIn: now,
-        checkInDates: {
-          set: updatedCheckInDates,
-        },
+        checkInDates: { set: updatedCheckInDates },
       },
     });
-    
+
     res.status(200).json({
       message: "Streak Updated Successfully",
-      streak: newStreak,
-      longestStreak: Math.max(checkuser.longestStreak || 0, newStreak),
+      habitId: updatedHabit.id,
+      streak: updatedHabit.streak,
+      longestStreak: updatedHabit.longestStreak,
+      checkIndates:updatedHabit.checkInDates
+      
     });
+
   } catch (error) {
-    console.error("Error updating streak:", error);
+    console.error("Error updating habit streak:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 export const getStreak = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
-      res.status(400).json({ message: "Unauthorized Access" });
-      return;
+       res.status(400).json({ message: "Unauthorized Access" });
+       return
     }
 
-    const findUser = await prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
+    const habits = await prisma.habit.findMany({
+      where: { userId: user.id },
       select: {
-        longestStreak: true,
+        id: true,
+        habitName: true,
         streak: true,
+        longestStreak: true,
         lastCheckIn: true,
         checkInDates: true,
       },
     });
 
-    if (!findUser) {
-      res.status(401).json({ message: "User not found" });
-      return;
+    if (!habits || habits.length === 0) {
+       res.status(404).json({ message: "No habits found" });
+       return
     }
 
-    const formattedUser = {
-      longestStreak: findUser.longestStreak,
-      streak: findUser.streak,
-      lastCheckIn: findUser.lastCheckIn
-        ? new Date(findUser.lastCheckIn).toISOString().split("T")[0]
+    const formattedHabits = habits.map((habit) => ({
+      habitId: habit.id,
+      habitName: habit.habitName,
+      streak: habit.streak,
+      longestStreak: habit.longestStreak,
+      lastCheckIn: habit.lastCheckIn
+        ? new Date(habit.lastCheckIn).toISOString().split("T")[0]
         : null,
-      checkInDates: findUser.checkInDates.map((date) =>
+      checkInDates: habit.checkInDates.map((date) =>
         new Date(date).toISOString().split("T")[0]
       ),
-    };
+    }));
 
-    res.status(200).json({ formattedUser });
+    res.status(200).json({ habits: formattedHabits });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching streak", error });
+    console.error("Error fetching streaks:", error);
+    res.status(500).json({ message: "Error fetching streaks", error });
   }
 };
