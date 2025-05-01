@@ -8,8 +8,8 @@ function HomeSection() {
       {/* Light Effect// */}
       <div className="w-full h-140 flex justify-center items-center flex-col relative text-center px-4 ">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-linear-to-r from-green-500/20 to-cyan-500/10 blur-[100px]" />
-          <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-linear-to-r from-green-400/10 to-cyan-300/5 blur-[80px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-linear-to-r from-blue-500/20 to-blue-600/10 blur-[100px]" />
+          <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-linear-to-r from-blue-400/10 to-blue-300/5 blur-[80px]" />
         </div>
 
         <motion.h1 
@@ -19,7 +19,7 @@ function HomeSection() {
           className="text-white text-5xl font-bold z-10"
         >
           Build Better Habits,<br />
-          <span className="text-green-500">Transform Your Life</span>
+          <span className="text-blue-500">Transform Your Life</span>
         </motion.h1>
 
         <motion.p 
@@ -37,9 +37,9 @@ function HomeSection() {
           animate={{ opacity: 1 }} 
           transition={{ delay: 0.6, duration: 0.6 }}
         >
-          <Button className="bg-green-700">Get Started Free</Button>
-          <Button className="bg-white text-green-400">See How it Works
-          <TrendingUp className="h-8 w-8 text-green-500" />
+          <Button className="bg-blue-700">Get Started Free</Button>
+          <Button className="bg-white text-blue-400">See How it Works
+          <TrendingUp className="h-8 w-8 text-blue-500" />
           </Button>
         </motion.div>
       </div>
@@ -47,13 +47,13 @@ function HomeSection() {
       <div className="py-20 bg-black/80 text-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-            Features That <span className="text-green-500">Drive Results</span>
+            Features That <span className="text-blue-500">Drive Results</span>
           </h2>
 
           <div className="grid md:grid-cols-3 gap-10">
             <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-green-800 transition-all">
               <div className="bg-green-600/10 p-3 rounded-lg w-fit mb-6">
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <CheckCircle className="h-8 w-8 text-blue-500" />
               </div>
               <h3 className="text-xl font-bold mb-4">Habit Tracking</h3>
               <p className="text-gray-400">
@@ -62,9 +62,9 @@ function HomeSection() {
               </p>
             </div>
 
-            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-green-800 transition-all">
-              <div className="bg-green-600/10 p-3 rounded-lg w-fit mb-6">
-                <TrendingUp className="h-8 w-8 text-green-500" />
+            <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-blye-800 transition-all">
+              <div className="bg-blue-600/10 p-3 rounded-lg w-fit mb-6">
+                <TrendingUp className="h-8 w-8 text-blue-500" />
               </div>
               <h3 className="text-xl font-bold mb-4">Insightful Analytics</h3>
               <p className="text-gray-400">
@@ -74,7 +74,7 @@ function HomeSection() {
 
             <div className="bg-gray-900 p-8 rounded-xl border border-gray-800 hover:border-green-800 transition-all">
               <div className="bg-green-600/10 p-3 rounded-lg w-fit mb-6">
-                <Calendar className="h-8 w-8 text-green-500" />
+                <Calendar className="h-8 w-8 text-blue-500" />
               </div>
               <h3 className="text-xl font-bold mb-4">Smart Reminders</h3>
               <p className="text-gray-400">

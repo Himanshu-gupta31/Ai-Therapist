@@ -1,120 +1,100 @@
-
-import { useState } from "react"
-import { parseISO, isSameDay, format, startOfMonth, endOfMonth, eachDayOfInterval, isToday } from "date-fns"
-import { Calendar } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { HabitStreakModal } from "./Habit-Streak-modal"
+import { CalendarDays } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface HabitStreakCardProps {
   habitName: string
   streak: number
   longestStreak: number
-  checkInDates: string[]
+  checkInDates?: string[]
+  quote?: string
+  onViewCalendar?: () => void
 }
 
-export function HabitStreakCard({ habitName, streak, longestStreak, checkInDates }: HabitStreakCardProps) {
-  const [showModal, setShowModal] = useState(false)
-  const today = new Date()
+export function HabitStreakCard({
+  habitName,
+  streak,
+  longestStreak,
+  checkInDates = [],
+  quote,
+  onViewCalendar,
+}: HabitStreakCardProps) {
+  // Function to get the last 7 days for the mini calendar
+  const getLast7Days = () => {
+    const days = []
+    const today = new Date()
 
-  // Get the current month for the mini calendar
-  const currentMonth = {
-    date: today,
-    days: eachDayOfInterval({
-      start: startOfMonth(today),
-      end: endOfMonth(today),
-    }),
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today)
+      date.setDate(today.getDate() - i)
+      days.push(date.toISOString().split("T")[0])
+    }
+
+    return days
   }
 
-  // Parse the ISO date strings into Date objects for comparison
-  const parsedCheckInDates = checkInDates
-    .map((dateStr) => {
-      try {
-        return parseISO(dateStr)
-      } catch (e) {
-        return null
-      }
-    })
-    .filter(Boolean) as Date[]
-
-  const hasCheckIn = (date: Date): boolean => {
-    return parsedCheckInDates.some((checkInDate) => checkInDate && isSameDay(checkInDate, date))
-  }
+  const last7Days = getLast7Days()
 
   return (
-    <>
-      <div className="bg-[#0d1117] rounded-lg border border-[#30363d] shadow-sm hover:shadow-md transition-all p-4">
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#1f2937] rounded-md flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-[#58a6ff]" />
-            </div>
-            <h3 className="font-medium text-[#c9d1d9]">{habitName}</h3>
+    <Card className="overflow-hidden bg-[#161b22] border-[#30363d] hover:border-[#58a6ff] transition-all duration-300 h-full">
+      <CardContent className="p-5">
+        <h3 className="text-lg font-semibold text-[#c9d1d9] mb-2">{habitName}</h3>
+
+        {quote && (
+          <div className="mb-4 p-3 bg-[#1f2937] rounded-lg border-l-4 border-[#58a6ff] italic text-[#8b949e] text-sm">
+            "{quote}"
           </div>
-          <div className="flex items-center gap-2 text-xs text-[#8b949e]">
-            <span className="font-semibold">{streak} day streak</span>
-            <span className="text-[#30363d]">|</span>
-            <span>Best: {longestStreak}</span>
+        )}
+
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-[#8b949e] text-sm">Current Streak</p>
+            <p className="text-2xl font-bold text-[#58a6ff]">{streak} days</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[#8b949e] text-sm">Longest Streak</p>
+            <p className="text-xl font-semibold text-[#c9d1d9]">{longestStreak} days</p>
           </div>
         </div>
 
-        {/* Mini calendar for current month */}
-        <div className="mb-4 overflow-hidden">
-          <div className="border border-[#30363d] rounded-lg p-2 bg-[#161b22]">
-            <div className="text-xs text-[#8b949e] font-medium mb-1 text-center">
-              {format(currentMonth.date, "MMMM yyyy")}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {/* Day labels */}
-              {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-                <div key={i} className="h-4 flex items-center justify-center text-[10px] text-[#8b949e]">
-                  {day}
-                </div>
-              ))}
+        <div className="mt-4">
+          <div className="flex items-center mb-2">
+            <CalendarDays className="w-4 h-4 text-[#58a6ff] mr-2" />
+            <span className="text-[#8b949e] text-sm">Last 7 days</span>
+          </div>
 
-              {/* Empty cells for proper alignment */}
-              {Array.from({ length: currentMonth.days[0].getDay() }).map((_, i) => (
-                <div key={`empty-${i}`} className="h-4" />
-              ))}
+          <div className="flex justify-between">
+            {last7Days.map((day, index) => {
+              const date = new Date(day)
+              const dayName = date.toLocaleDateString("en-US", { weekday: "short" }).charAt(0)
+              const isCheckedIn = checkInDates.includes(day)
 
-              {/* Days of the month */}
-              {currentMonth.days.map((day) => {
-                const isCurrentDay = isToday(day)
-                const checkedIn = hasCheckIn(day)
-
-                return (
+              return (
+                <div key={index} className="flex flex-col items-center">
                   <div
-                    key={day.toString()}
-                    className={`
-                      h-4 w-4 rounded-sm flex items-center justify-center text-[9px]
-                      ${isCurrentDay ? "ring-1 ring-[#58a6ff]" : ""}
-                      ${
-                        checkedIn
-                          ? "bg-[#0e4429] border border-[#39d353] text-[#39d353]"
-                          : "bg-[#161b22] border border-[#30363d] text-[#8b949e]"
-                      }
-                    `}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 text-xs font-medium
+                    ${isCheckedIn ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"}`}
                   >
-                    {day.getDate()}
+                    {dayName}
                   </div>
-                )
-              })}
-            </div>
+                  <div className="text-[#8b949e] text-xs">{date.getDate()}</div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="mt-4 text-center">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onViewCalendar && onViewCalendar()
+              }}
+              className="text-sm text-[#58a6ff] hover:text-[#388bfd] hover:underline flex items-center justify-center mx-auto"
+            >
+              <CalendarDays className="w-4 h-4 mr-1" />
+              View Full Calendar
+            </button>
           </div>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full text-xs border-[#30363d] text-[#8b949e] hover:bg-[#1f2937] bg-transparent"
-          onClick={() => setShowModal(true)}
-        >
-          View Full Calendar
-        </Button>
-      </div>
-
-      {showModal && (
-        <HabitStreakModal habitName={habitName} checkInDates={checkInDates} onClose={() => setShowModal(false)} />
-      )}
-    </>
+      </CardContent>
+    </Card>
   )
 }

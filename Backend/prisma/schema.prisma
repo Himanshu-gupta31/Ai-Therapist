@@ -39,7 +39,10 @@ model Habit {
   longestStreak Int            @default(0)
   lastCheckIn   DateTime?
   checkInDates  String[]       @default([])
+  quoteId      String? 
+  quote        Quote? @relation(fields: [quoteId],references: [id])
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
 }
 
 model DailyPlanner {
@@ -53,6 +56,7 @@ model DailyPlanner {
   priority    String
   category    String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
 
   @@unique([userId,date,startingtime])
 }
@@ -60,6 +64,7 @@ model Quote {
   id        String   @id @default(uuid())
   text      String
   type      QuoteType
+  habits    Habit[]   
   createdAt DateTime @default(now())
 }
 

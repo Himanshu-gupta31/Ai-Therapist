@@ -38,7 +38,8 @@ export default function UnifiedDashboard() {
   const [suggestionFilter, setSuggestionFilter] = useState("")
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [completedHabit, setCompletedHabit] = useState<Record<string, boolean>>({})
-  console.log("Habits",habits)
+  const [viewingCalendarForHabit, setViewingCalendarForHabit] = useState<string | null>(null)
+  console.log("Habits", habits)
   // Daily plan state
   const [dailyplan, setDailyPlan] = useState<DailyPlan[]>([])
   const [planLoading, setPlanLoading] = useState(false)
@@ -47,7 +48,9 @@ export default function UnifiedDashboard() {
     const today = new Date()
     return today.toISOString().split("T")[0]
   })
-
+  //Quotes state
+  const [quotes, setQuotes] = useState<Record<string,string>>({})
+  console.log("quotes",quotes)
   // Habit suggestions
   const habitSuggestion = [
     "Yoga",
@@ -69,8 +72,6 @@ export default function UnifiedDashboard() {
     suggestion.toLowerCase().includes(suggestionFilter.toLowerCase()),
   )
 
-  // Add a state for the selected habit to view streak
-  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
 
   // Fetch habits
   const fetchHabits = async () => {
@@ -150,7 +151,7 @@ export default function UnifiedDashboard() {
                 checkInDates: response.data.checkInDates || habit.checkInDates || [],
               }
             }
-          
+
             return habit
           }),
         )
@@ -304,7 +305,31 @@ export default function UnifiedDashboard() {
     }
     loadData()
   }, [])
-
+  // Quotes For Habit
+  const HabitQuotes = async (habitId: string) => {
+    try {
+      
+      const response = await newRequest.get(`/quotes/getQuotes/${habitId}`)
+      if (!response.data.quote) {
+        setError("No quote found")
+        return
+      }
+      setQuotes((prev)=>({
+        ...prev,
+        [habitId]:response.data.quote.text
+      }))
+    } catch (error) {
+      setError("Failed to load quotes")
+      console.error("Error loading quotes:", error)
+    }
+  }
+  useEffect(() => {
+    habits.forEach((habit)=>{
+      if(habit.lastCheckIn && habit.id){
+        HabitQuotes(habit.id)
+      }
+    })
+  }, [habits.map(h=>h.lastCheckIn).join(",")]);
   // Handle completed habits persistence
   useEffect(() => {
     const todayUTC = new Date().toISOString().split("T")[0]
@@ -399,23 +424,31 @@ export default function UnifiedDashboard() {
               {habits.map(
                 (habit) =>
                   habit.id && (
-                    <div key={habit.id} className="relative group">
+                    <div key={habit.id} className="relative group" onClick={() => habit.id && HabitQuotes(habit.id)}>
                       <HabitStreakCard
                         habitName={habit.habitName}
                         streak={habit.streak || 0}
                         longestStreak={habit.longestStreak || 0}
                         checkInDates={habit.checkInDates || []}
+                        quote={habit.id ? quotes[habit.id] : ""}
+                        onViewCalendar={() => setViewingCalendarForHabit(habit.id || null)}
                       />
-                      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                         <button
                           className="w-8 h-8 bg-[#1f2937] rounded-md flex items-center justify-center text-[#8b949e] hover:text-[#58a6ff]"
-                          onClick={() => habit.id && handleHabitCheckIn(habit.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            habit.id && handleHabitCheckIn(habit.id)
+                          }}
                         >
                           <CheckCircle2 className="h-4 w-4" />
                         </button>
                         <button
                           className="w-8 h-8 bg-[#1f2937] rounded-md flex items-center justify-center text-[#8b949e] hover:text-[#f85149]"
-                          onClick={() => habit.id && deleteHabits(habit.id)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            habit.id && deleteHabits(habit.id)
+                          }}
                           disabled={deleteLoading === habit.id}
                         >
                           {deleteLoading === habit.id ? (
@@ -622,6 +655,43 @@ export default function UnifiedDashboard() {
                 >
                   {loading ? "Adding..." : "Add Habit"}
                 </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Full Calendar Modal */}
+      {viewingCalendarForHabit && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000]">
+          <div className="bg-[#161b22] rounded-lg p-6 w-full max-w-2xl shadow-xl border border-[#30363d]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#c9d1d9]">
+                Check-in Calendar: {habits.find((h) => h.id === viewingCalendarForHabit)?.habitName}
+              </h2>
+              <button onClick={() => setViewingCalendarForHabit(null)} className="text-[#8b949e] hover:text-[#c9d1d9]">
+                <X />
+              </button>
+            </div>
+            <div className="p-4 min-h-[300px] bg-[#0d1117] rounded-lg border border-[#30363d]">
+              <div className="grid grid-cols-7 gap-2">
+                {Array.from({ length: 30 }).map((_, index) => {
+                  const date = new Date()
+                  date.setDate(date.getDate() - (29 - index))
+                  const dateStr = date.toISOString().split("T")[0]
+                  const habit = habits.find((h) => h.id === viewingCalendarForHabit)
+                  const isCheckedIn = habit?.checkInDates?.includes(dateStr)
+
+                  return (
+                    <div
+                      key={index}
+                      className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs
+                        ${isCheckedIn ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"}`}
+                    >
+                      <span className="font-medium">{date.getDate()}</span>
+                      <span>{date.toLocaleDateString("en-US", { month: "short" })}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>
