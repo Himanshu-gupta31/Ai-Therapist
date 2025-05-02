@@ -33,8 +33,8 @@ function SignIn() {
   }
 
   return (
-    <div className="flex min-h-screen justify-center items-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md">
+    <div className="flex min-h-screen justify-center items-center bg-black">
+      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md border-2 border-blue-400">
         <h2 className="text-3xl font-bold text-center mb-6">Sign In</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="text-red-500 text-center">{error}</p>}
@@ -45,7 +45,7 @@ function SignIn() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFDE59]"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
               required
             />
           </div>
@@ -56,13 +56,13 @@ function SignIn() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFDE59]"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-teal-400 text-black py-3 rounded-lg hover:bg-teal-500 transition duration-300"
+            className="w-full bg-blue-400 text-black py-3 rounded-lg hover:bg-blue-500 transition duration-300"
             disabled={loading}
           >
             {loading ? "Signing In..." : "Sign In"}
@@ -83,7 +83,7 @@ function SignIn() {
               Don't have an account?{' '}
               <Link
                 to="/signup"
-                className="text-teal-400 hover:underline"
+                className="text-blue-400 hover:underline"
               >
                 Sign Up
               </Link>

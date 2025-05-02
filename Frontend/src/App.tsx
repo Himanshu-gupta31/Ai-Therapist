@@ -23,8 +23,6 @@ function  App() {
           <Route path="/signin" element={<SignIn/>}/>
           <Route path="/signup" element={<SignUp/>}/>
           <Route path="*" element={<NotFound/>}/>
-          <Route path="/screentime" element={<ScreenTimeCalculator/>}/>
-          <Route path="/screenassistant" element={<ScreenTimeAssistant/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/dailyplan" element={<DailyPlanForm/>}/>
           

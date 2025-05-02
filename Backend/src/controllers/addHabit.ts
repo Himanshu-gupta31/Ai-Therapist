@@ -3,10 +3,10 @@ import { prisma } from "../db/db";
 
 export const addHabit = async (req: Request, res: Response) => {
   try {
-    const { habitName, description } = req.body;
+    const { habitName, description,frequency,duration } = req.body;
 
-    if (!habitName || !description) {
-       res.status(400).json({ message: "Habit is needed to be added" });
+    if (!habitName || !description || !frequency || !duration) {
+       res.status(400).json({ message: "Must fill the required field to add Habit" });
        return
     }
 
@@ -26,6 +26,8 @@ export const addHabit = async (req: Request, res: Response) => {
         longestStreak: 0,
         lastCheckIn: null,
         checkInDates: [],
+        frequency,
+        duration
       },
     });
 

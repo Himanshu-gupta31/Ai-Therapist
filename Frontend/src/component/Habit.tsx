@@ -1,27 +1,30 @@
-import { Button } from "@/components/ui/button";
-import { newRequest } from "@/utils/request";
-import { CircleCheck, CirclePlus,  X } from "lucide-react";
-import {  useState } from "react";
+"use client"
 
+import { Button } from "@/components/ui/button"
+import { newRequest } from "@/utils/request"
+import { CircleCheck, CirclePlus, X } from "lucide-react"
+import { useState } from "react"
 
 interface Habit {
-  habitName: string;
-  description: string;
-  id?: string;
+  habitName: string
+  description: string
+  id?: string
 }
 
 function Habit() {
-  const [habits, setHabit] = useState<Habit[]>([]);
-  const [habitName, setHabitName] = useState("");
-  const [description, setDescription] = useState("");
-  const [inputValue, setInputValue] = useState(""); 
-  const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
-  const [error, setError] = useState("");
-  const [open, setOpen] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestionFilter, setSuggestionFilter] = useState("");
+  const [habits, setHabit] = useState<Habit[]>([])
+  const [habitName, setHabitName] = useState("")
+  const [description, setDescription] = useState("")
+  const [frequency, setFrequency] = useState("daily")
+  const [duration, setDuration] = useState(1)
+  const [inputValue, setInputValue] = useState("")
+  const [showModal, setShowModal] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
+  const [error, setError] = useState("")
+  const [open, setOpen] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestionFilter, setSuggestionFilter] = useState("")
 
   const habitSuggestion = [
     "Yoga",
@@ -36,7 +39,7 @@ function Habit() {
     "Skincare",
     "Haircare",
     "Socialising",
-  ];
+  ]
 
   // useEffect(() => {
   //   fetchHabits();
@@ -71,38 +74,41 @@ function Habit() {
 
   const addHabitHandler = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await newRequest.post("/habit/addHabit", {
         habitName,
         description,
-      });
-      console.log(response);
-      setHabitName("");
-      setDescription("");
-      setInputValue("");
-      setSuggestionFilter("");
-      setShowModal(false);
-      setError("");
-      
+        frequency,
+        duration,
+      })
+      console.log(response)
+      setHabitName("")
+      setDescription("")
+      setFrequency("daily")
+      setDuration(30)
+      setInputValue("")
+      setSuggestionFilter("")
+      setShowModal(false)
+      setError("")
     } catch (error) {
-      setError("Failed to add habit");
-      console.error("Error adding habit:", error);
+      setError("Failed to add habit")
+      console.error("Error adding habit:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Filter suggestions based on the suggestion filter input
   const filteredSuggestions = habitSuggestion.filter((suggestion) =>
-    suggestion.toLowerCase().includes(suggestionFilter.toLowerCase())
-  );
+    suggestion.toLowerCase().includes(suggestionFilter.toLowerCase()),
+  )
 
   // Function to select a suggestion
   const selectSuggestion = (suggestion: string) => {
-    setHabitName(suggestion);
-    setSuggestionFilter("");
-    setShowSuggestions(false);
-  };
+    setHabitName(suggestion)
+    setSuggestionFilter("")
+    setShowSuggestions(false)
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -116,9 +122,9 @@ function Habit() {
           <div>
             <Button
               onClick={() => {
-                setShowModal(true);
-                setInputValue(""); // Reset filter when opening modal
-                setSuggestionFilter("");
+                setShowModal(true)
+                setInputValue("") // Reset filter when opening modal
+                setSuggestionFilter("")
               }}
             >
               <CirclePlus className="mr-2" />
@@ -127,11 +133,7 @@ function Habit() {
           </div>
         </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
         {/* <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {loading && habits.length === 0 ? (
@@ -188,26 +190,21 @@ function Habit() {
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Habit</h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X />
               </button>
             </div>
             <div className="space-y-4">
               {/* Suggestion Box */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Find Suggestions
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Find Suggestions</label>
                 <div className="relative">
                   <input
                     type="text"
                     value={suggestionFilter}
                     onChange={(e) => {
-                      setSuggestionFilter(e.target.value);
-                      setShowSuggestions(true);
+                      setSuggestionFilter(e.target.value)
+                      setShowSuggestions(true)
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     placeholder="Type to find suggestions"
@@ -233,9 +230,7 @@ function Habit() {
 
               {/* Habit Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Habit Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Habit Name</label>
                 <input
                   type="text"
                   value={habitName}
@@ -247,9 +242,7 @@ function Habit() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <input
                   value={description}
                   placeholder="Enter description"
@@ -258,13 +251,37 @@ function Habit() {
                 />
               </div>
 
+              {/* Frequency */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
+                <select
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Duration (hours)</label>
+                <input
+                  type="number"
+                  value={duration}
+                  onChange={(e) => setDuration(Number.parseInt(e.target.value))}
+                  placeholder="Enter duration in hrs"
+                  min="1"
+                  max="24"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
               {/* Buttons */}
               <div className="flex justify-end pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowModal(false)}
-                  className="mr-2"
-                >
+                <Button variant="outline" onClick={() => setShowModal(false)} className="mr-2">
                   Cancel
                 </Button>
                 <Button onClick={addHabitHandler} disabled={loading}>
@@ -276,7 +293,7 @@ function Habit() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default Habit;
+export default Habit

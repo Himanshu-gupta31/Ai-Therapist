@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Clock, CirclePlus, Trash2, X, Calendar, CheckCircle2, CalendarDays } from "lucide-react"
 import { newRequest } from "@/utils/request"
@@ -14,6 +16,8 @@ interface Habit {
   longestStreak?: number
   lastCheckIn?: string | null
   checkInDates?: string[]
+  frequency?: string
+  duration?: number
 }
 
 interface DailyPlan {
@@ -31,6 +35,8 @@ export default function UnifiedDashboard() {
   const [habits, setHabits] = useState<Habit[]>([])
   const [habitName, setHabitName] = useState("")
   const [description, setDescription] = useState("")
+  const [frequency, setFrequency] = useState<string>("daily")
+  const [duration, setDuration] = useState<number>(1)
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
@@ -49,8 +55,8 @@ export default function UnifiedDashboard() {
     return today.toISOString().split("T")[0]
   })
   //Quotes state
-  const [quotes, setQuotes] = useState<Record<string,string>>({})
-  console.log("quotes",quotes)
+  const [quotes, setQuotes] = useState<Record<string, string>>({})
+  console.log("quotes", quotes)
   // Habit suggestions
   const habitSuggestion = [
     "Yoga",
@@ -71,7 +77,6 @@ export default function UnifiedDashboard() {
   const filteredSuggestions = habitSuggestion.filter((suggestion) =>
     suggestion.toLowerCase().includes(suggestionFilter.toLowerCase()),
   )
-
 
   // Fetch habits
   const fetchHabits = async () => {
@@ -219,9 +224,13 @@ export default function UnifiedDashboard() {
       await newRequest.post("/habit/addHabit", {
         habitName,
         description,
+        frequency,
+        duration,
       })
       setHabitName("")
       setDescription("")
+      setFrequency("daily")
+      setDuration(1)
       setSuggestionFilter("")
       setShowModal(false)
       setError("")
@@ -308,15 +317,14 @@ export default function UnifiedDashboard() {
   // Quotes For Habit
   const HabitQuotes = async (habitId: string) => {
     try {
-      
       const response = await newRequest.get(`/quotes/getQuotes/${habitId}`)
       if (!response.data.quote) {
         setError("No quote found")
         return
       }
-      setQuotes((prev)=>({
+      setQuotes((prev) => ({
         ...prev,
-        [habitId]:response.data.quote.text
+        [habitId]: response.data.quote.text,
       }))
     } catch (error) {
       setError("Failed to load quotes")
@@ -324,12 +332,12 @@ export default function UnifiedDashboard() {
     }
   }
   useEffect(() => {
-    habits.forEach((habit)=>{
-      if(habit.lastCheckIn && habit.id){
+    habits.forEach((habit) => {
+      if (habit.lastCheckIn && habit.id) {
         HabitQuotes(habit.id)
       }
     })
-  }, [habits.map(h=>h.lastCheckIn).join(",")]);
+  }, [habits.map((h) => h.lastCheckIn).join(",")])
   // Handle completed habits persistence
   useEffect(() => {
     const todayUTC = new Date().toISOString().split("T")[0]
@@ -431,6 +439,8 @@ export default function UnifiedDashboard() {
                         longestStreak={habit.longestStreak || 0}
                         checkInDates={habit.checkInDates || []}
                         quote={habit.id ? quotes[habit.id] : ""}
+                        frequency={habit.frequency}
+                        duration={habit.duration}
                         onViewCalendar={() => setViewingCalendarForHabit(habit.id || null)}
                       />
                       <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -635,6 +645,33 @@ export default function UnifiedDashboard() {
                   value={description}
                   placeholder="Enter description"
                   onChange={(e) => setDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent text-[#c9d1d9]"
+                />
+              </div>
+              {/* Frequency */}
+              <div>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Frequency</label>
+                <select
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent text-[#c9d1d9]"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+
+              {/* Duration */}
+              <div>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Duration (hours)</label>
+                <input
+                  type="number"
+                  value={duration}
+                  onChange={(e) => setDuration(Number.parseInt(e.target.value))}
+                  placeholder="Enter duration in days"
+                  min="1"
+                  max="24"
                   className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent text-[#c9d1d9]"
                 />
               </div>
