@@ -1,6 +1,6 @@
 import type React from "react";
 
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { newRequest } from "@/utils/request";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ import {
 import { CalendarIcon, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "@/component/context/AuthContext";
 
 export default function DailyPlanForm() {
   // Individual state for each input field
@@ -128,6 +130,15 @@ export default function DailyPlanForm() {
         return "bg-teal-100 text-teal-600";
     }
   };
+  const navigate=useNavigate()
+
+  const {auth}=useContext(AuthContext)
+
+  useEffect(()=>{
+    if(!auth){
+      navigate("/signin")
+    }
+  },[auth])
 
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-lg mt-6 py-0">

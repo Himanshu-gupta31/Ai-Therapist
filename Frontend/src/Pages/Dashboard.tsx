@@ -1,12 +1,12 @@
-"use client"
-
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { Clock, CirclePlus, Trash2, X, Calendar, CheckCircle2, CalendarDays } from "lucide-react"
 import { newRequest } from "@/utils/request"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { HabitStreakCard } from "@/component/Habit-streak-card"
 import { useNavigate } from "react-router-dom"
+import AuthContextProvider from "@/component/context/AuthContextProvider"
+import AuthContext from "@/component/context/AuthContext"
 
 interface Habit {
   habitName: string
@@ -57,6 +57,9 @@ export default function UnifiedDashboard() {
   //Quotes state
   const [quotes, setQuotes] = useState<Record<string, string>>({})
   console.log("quotes", quotes)
+  //Context
+  
+  
   // Habit suggestions
   const habitSuggestion = [
     "Yoga",
@@ -358,6 +361,15 @@ export default function UnifiedDashboard() {
   }, [])
 
   const navigate = useNavigate()
+  
+  const {auth}=useContext(AuthContext)
+  useEffect(()=>{
+    if(!auth){
+      navigate("/signin")
+    }
+  },[auth])
+
+  
 
   return (
     <div className="min-h-screen bg-[#0d1117] p-4 md:p-8">

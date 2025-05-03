@@ -1,5 +1,3 @@
-"use client"
-
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import ScreenLife from "/ScreenLife.png"
 import { useEffect, useState } from "react"
