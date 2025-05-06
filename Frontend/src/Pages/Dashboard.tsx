@@ -1,12 +1,12 @@
-import { useState, useEffect, useContext } from "react"
+"use client"
+
+import { useState, useEffect } from "react"
 import { Clock, CirclePlus, Trash2, X, Calendar, CheckCircle2, CalendarDays } from "lucide-react"
 import { newRequest } from "@/utils/request"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { HabitStreakCard } from "@/component/Habit-streak-card"
 import { useNavigate } from "react-router-dom"
-import AuthContextProvider from "@/component/context/AuthContextProvider"
-import AuthContext from "@/component/context/AuthContext"
 
 interface Habit {
   habitName: string
@@ -45,6 +45,9 @@ export default function UnifiedDashboard() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [completedHabit, setCompletedHabit] = useState<Record<string, boolean>>({})
   const [viewingCalendarForHabit, setViewingCalendarForHabit] = useState<string | null>(null)
+  const [expertise, setExpertise] = useState("Beginner")
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false)
+  const [suggestAiTargets, setSuggestAiTargets] = useState(false)
   console.log("Habits", habits)
   // Daily plan state
   const [dailyplan, setDailyPlan] = useState<DailyPlan[]>([])
@@ -58,8 +61,7 @@ export default function UnifiedDashboard() {
   const [quotes, setQuotes] = useState<Record<string, string>>({})
   console.log("quotes", quotes)
   //Context
-  
-  
+
   // Habit suggestions
   const habitSuggestion = [
     "Yoga",
@@ -229,6 +231,8 @@ export default function UnifiedDashboard() {
         description,
         frequency,
         duration,
+        expertise,
+        suggestAiTargets, // Add this new field
       })
       setHabitName("")
       setDescription("")
@@ -236,6 +240,8 @@ export default function UnifiedDashboard() {
       setDuration(1)
       setSuggestionFilter("")
       setShowModal(false)
+      setExpertise("Beginner")
+      setSuggestAiTargets(false) // Reset this state
       setError("")
       await fetchHabits()
       await fetchHabitStreaks()
@@ -361,15 +367,15 @@ export default function UnifiedDashboard() {
   }, [])
 
   const navigate = useNavigate()
-  
-  const {auth}=useContext(AuthContext)
-  useEffect(()=>{
-    if(!auth){
-      navigate("/signin")
-    }
-  },[auth])
 
-  
+  // const {auth}=useContext(AuthContext)
+  // useEffect(()=>{
+  //   if(!auth){
+  //     navigate("/signin")
+  //   }else{
+  //     navigate("/dashboard")
+  //   }
+  // },[auth])
 
   return (
     <div className="min-h-screen bg-[#0d1117] p-4 md:p-8">
@@ -444,7 +450,7 @@ export default function UnifiedDashboard() {
               {habits.map(
                 (habit) =>
                   habit.id && (
-                    <div key={habit.id} className="relative group" onClick={() => habit.id && HabitQuotes(habit.id)}>
+                    <div key={habit.id} className="relative group">
                       <HabitStreakCard
                         habitName={habit.habitName}
                         streak={habit.streak || 0}
@@ -687,7 +693,48 @@ export default function UnifiedDashboard() {
                   className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent text-[#c9d1d9]"
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Expertise Level</label>
+                <div className="grid grid-cols-3 gap-2 mt-1">
+                  {["Beginner", "Intermediate", "Expert"].map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setExpertise(level)}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                        expertise === level
+                          ? "bg-[#1f6feb] text-white"
+                          : "bg-[#0d1117] text-[#8b949e] hover:bg-[#1f2937] border border-[#30363d]"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-start mt-4">
+                <div className="flex items-center h-5">
+                  <input
+                    id="ai-suggestions"
+                    type="checkbox"
+                    checked={suggestAiTargets}
+                    onChange={() => setSuggestAiTargets(!suggestAiTargets)}
+                    className="w-4 h-4 rounded border-[#30363d] bg-[#0d1117] focus:ring-[#58a6ff] focus:ring-2"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="ai-suggestions" className="font-medium text-[#c9d1d9] cursor-pointer">
+                    Suggest AI generated targets
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAiSuggestions(true)}
+                    className="ml-1 text-[#58a6ff] hover:underline text-xs"
+                  >
+                    (Learn more)
+                  </button>
+                </div>
+              </div>
               {/* Buttons */}
               <div className="flex justify-end pt-4">
                 <Button
@@ -704,6 +751,7 @@ export default function UnifiedDashboard() {
                 >
                   {loading ? "Adding..." : "Add Habit"}
                 </Button>
+                {/* Expertise Level */}
               </div>
             </div>
           </div>
@@ -741,6 +789,42 @@ export default function UnifiedDashboard() {
                     </div>
                   )
                 })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* AI Suggestions Modal */}
+      {showAiSuggestions && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1100]">
+          <div className="bg-[#161b22] rounded-lg p-6 w-full max-w-md shadow-xl border border-[#30363d]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#c9d1d9]">AI Generated Targets</h2>
+              <button onClick={() => setShowAiSuggestions(false)} className="text-[#8b949e] hover:text-[#c9d1d9]">
+                <X />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <p className="text-[#c9d1d9]">
+                Our AI system analyzes your habit patterns, expertise level, and progress to suggest personalized
+                targets that are:
+              </p>
+              <ul className="list-disc pl-5 text-[#c9d1d9] space-y-2">
+                <li>Challenging but achievable based on your expertise level</li>
+                <li>Adapted to your consistency and streak history</li>
+                <li>Designed to progressively improve your performance</li>
+                <li>Tailored to the specific habit type and frequency</li>
+              </ul>
+              <p className="text-[#8b949e] text-sm mt-4">
+                When enabled, AI suggestions will appear after you add a new habit and can be adjusted at any time.
+              </p>
+              <div className="flex justify-end pt-4">
+                <Button
+                  onClick={() => setShowAiSuggestions(false)}
+                  className="bg-[#1f6feb] hover:bg-[#388bfd] text-white border-none"
+                >
+                  Got it
+                </Button>
               </div>
             </div>
           </div>

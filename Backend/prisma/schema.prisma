@@ -14,63 +14,79 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
+  id            String   @id @default(uuid())
+  email         String   @unique
   password      String
   name          String? // Optional: add name field
   token         String?
   refresh_token String?
   access_token  String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   authType      String?
-  screenTime    Int?           @default(0)
+  screenTime    Int?     @default(0)
   habits        Habit[]
-  
-  dailyPlanner  DailyPlanner[]
+
+  dailyPlanner DailyPlanner[]
 }
 
 model Habit {
-  id          String @id @default(uuid())
-  habitName   String
-  userId      String
-  description String
-  streak        Int            @default(0)
-  longestStreak Int            @default(0)
-  lastCheckIn   DateTime?
-  checkInDates  String[]       @default([])
-  frequency     String
-  duration      Int
-  quoteId      String? 
-  quote        Quote? @relation(fields: [quoteId],references: [id])
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id             String        @id @default(uuid())
+  habitName      String
+  userId         String
+  description    String
+  streak         Int           @default(0)
+  longestStreak  Int           @default(0)
+  lastCheckIn    DateTime?
+  checkInDates   String[]      @default([])
+  frequency      String
+  duration       Int
+  quoteId        String?
+  expertiselevel ExpertiseType
+  level          LevelsType?
+  targets        String?
+  quote          Quote?        @relation(fields: [quoteId], references: [id])
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DailyPlanner {
-  id          String   @id @default(uuid()) 
-  userId      String
-  date        DateTime
-  planName    String
-  endtime     String
+  id           String   @id @default(uuid())
+  userId       String
+  date         DateTime
+  planName     String
+  endtime      String
   startingtime String
-  description String?
-  priority    String
-  category    String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  description  String?
+  priority     String
+  category     String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId,date,startingtime])
+  @@unique([userId, date, startingtime])
 }
+
 model Quote {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   text      String
   type      QuoteType
-  habits    Habit[]   
-  createdAt DateTime @default(now())
+  habits    Habit[]
+  createdAt DateTime  @default(now())
 }
 
 enum QuoteType {
   MOTIVATIONAL
   ROAST
+}
+
+enum ExpertiseType {
+  Beginner
+  Intermediate
+  Expert
+}
+
+enum LevelsType {
+  Very_Easy
+  Easy
+  Medium
+  Hard
+  Very_Hard
 }
