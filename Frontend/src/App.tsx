@@ -8,6 +8,7 @@ import {GoogleOAuthProvider} from "@react-oauth/google"
 import Dashboard from "./Pages/Dashboard"
 import DailyPlanForm from "./Pages/DailyPlan"
 import AuthContextProvider from "./component/context/AuthContextProvider"
+import Chat from "./component/Chat"
 
 
 function  App() {
@@ -24,6 +25,8 @@ function  App() {
           <Route path="*" element={<NotFound/>}/>
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/dailyplan" element={<DailyPlanForm/>}/>
+          <Route path="/chatbot" element={<Chat/>}/>
+          
           
           
           

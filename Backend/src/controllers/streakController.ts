@@ -92,9 +92,31 @@ export const getStreak = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     if (!user) {
-       res.status(400).json({ message: "Unauthorized Access" });
-       return
+      res.status(400).json({ message: "Unauthorized Access" });
+      return;
     }
+
+    const now = new Date();
+    // console.log(now,"NeW")
+    const last7days = new Date(now);
+    // console.log(last7days,"1")
+    
+    last7days.setUTCDate(now.getUTCDate() - 6); 
+    // console.log(last7days)
+
+    const get7Days = (): string[] => {
+      const days: string[] = [];
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(last7days);
+        // console.log(day,"Day")
+        day.setUTCDate(last7days.getUTCDate() + i);
+        const isoDay = day.toISOString().split("T")[0];
+        days.push(isoDay);
+      }
+      return days;
+    };
+
+    const last7Dates = get7Days();
 
     const habits = await prisma.habit.findMany({
       where: { userId: user.id },
@@ -109,22 +131,30 @@ export const getStreak = async (req: Request, res: Response) => {
     });
 
     if (!habits || habits.length === 0) {
-       res.status(404).json({ message: "No habits found" });
-       return
+      res.status(404).json({ message: "No habits found" });
+      return;
     }
 
-    const formattedHabits = habits.map((habit) => ({
-      habitId: habit.id,
-      habitName: habit.habitName,
-      streak: habit.streak,
-      longestStreak: habit.longestStreak,
-      lastCheckIn: habit.lastCheckIn
-        ? new Date(habit.lastCheckIn).toISOString().split("T")[0]
-        : null,
-      checkInDates: habit.checkInDates.map((date) =>
-        new Date(date).toISOString().split("T")[0]
-      ),
-    }));
+    const formattedHabits = habits.map((habit) => {
+      const checkInDates = habit.checkInDates; 
+
+      const last7CheckIns = last7Dates.filter((day) =>
+        checkInDates.includes(day)
+      );
+
+      return {
+        habitId: habit.id,
+        habitName: habit.habitName,
+        streak: habit.streak,
+        longestStreak: habit.longestStreak,
+        lastCheckIn: habit.lastCheckIn
+          ? habit.lastCheckIn.toISOString().split("T")[0]
+          : null,
+        checkInDates,
+        last7CheckInCount: last7CheckIns.length,
+        completedDays: last7CheckIns,
+      };
+    });
 
     res.status(200).json({ habits: formattedHabits });
   } catch (error) {

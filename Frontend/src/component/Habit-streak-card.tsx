@@ -1,58 +1,98 @@
-import { CalendarDays } from "lucide-react"
+import { CalendarDays, CheckCircle2, Clock, Target } from "lucide-react"
 
 interface HabitStreakCardProps {
   habitName: string
   streak: number
-  longestStreak: number
+  last7CheckInCount: number
   checkInDates?: string[]
   quote?: string
   frequency?: string
   duration?: number
+  goal?: string
   onViewCalendar: () => void
 }
 
 export function HabitStreakCard({
   habitName,
   streak,
-  longestStreak,
+  last7CheckInCount,
   checkInDates = [],
   quote,
-  frequency = "daily",
-  duration = 1,
+  frequency,
+  duration,
+  goal,
   onViewCalendar,
 }: HabitStreakCardProps) {
+  
+  const today = new Date().toISOString().split("T")[0]
+  const isCheckedInToday = checkInDates.includes(today)
+
+  // Format frequency for display
+  const formatFrequency = (freq?: string) => {
+    if (!freq) return "Daily"
+    return freq.charAt(0).toUpperCase() + freq.slice(1)
+  }
+
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 hover:border-[#58a6ff] transition-all duration-300">
+    <div
+      className={`p-5 rounded-xl border ${
+        isCheckedInToday ? "border-[#58a6ff] bg-[#1f2937]" : "border-[#30363d] bg-[#161b22]"
+      } hover:border-[#58a6ff] transition-all duration-300 h-full flex flex-col`}
+    >
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-[#c9d1d9]">{habitName}</h3>
-        <div className="flex items-center">
-          <span className="text-xs font-medium bg-[#1f2937] text-[#8b949e] px-2 py-1 rounded-full">{frequency}</span>
+        <h3 className="text-lg font-semibold text-[#c9d1d9] line-clamp-1">{habitName}</h3>
+        <div
+          className={`px-2 py-1 rounded-md text-xs font-medium ${
+            isCheckedInToday ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"
+          }`}
+        >
+          {isCheckedInToday ? "Completed Today" : "Not Completed"}
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-[#1f2937] rounded-lg p-3">
-          <div className="text-[#8b949e] text-xs mb-1">Current Streak</div>
-          <div className="text-[#c9d1d9] text-xl font-bold">{streak} days</div>
+        <div className="bg-[#0d1117] p-3 rounded-lg">
+          <div className="text-[#8b949e] text-xs mb-1 flex items-center">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            Current Streak
+          </div>
+          <div className="text-xl font-bold text-[#c9d1d9]">{streak} days</div>
         </div>
-        <div className="bg-[#1f2937] rounded-lg p-3">
-          <div className="text-[#8b949e] text-xs mb-1">Longest Streak</div>
-          <div className="text-[#c9d1d9] text-xl font-bold">{longestStreak} days</div>
+        <div className="bg-[#0d1117] p-3 rounded-lg">
+          <div className="text-[#8b949e] text-xs mb-1 flex items-center">
+            <CalendarDays className="w-3 h-3 mr-1" />
+            Last 7 Days
+          </div>
+          <div className="text-xl font-bold text-[#c9d1d9]">{last7CheckInCount} days</div>
         </div>
       </div>
 
-      {quote && (
-        <div className="bg-[#1f2937] rounded-lg p-3 mb-4">
-          <div className="text-[#8b949e] text-xs mb-1">Motivation</div>
-          <div className="text-[#c9d1d9] text-sm italic">"{quote}"</div>
+      {goal && (
+        <div className="bg-[#0d1117] p-3 rounded-lg mb-4">
+          <div className="text-[#8b949e] text-xs mb-1 flex items-center">
+            <Target className="w-3 h-3 mr-1" />
+            Goal
+          </div>
+          <div className="text-sm text-[#c9d1d9]">{goal}</div>
         </div>
       )}
 
-      <button
-        onClick={onViewCalendar}
-        className="w-full flex items-center justify-center gap-2 text-[#58a6ff] bg-[#1f2937] hover:bg-[#2d3748] py-2 rounded-md transition-colors text-sm"
-      >
-        <CalendarDays className="w-4 h-4" />
+      <div className="flex items-center text-xs text-[#8b949e] mt-auto">
+        <div className="flex items-center mr-4">
+          <Clock className="w-3 h-3 mr-1" />
+          {formatFrequency(frequency)}
+        </div>
+        {duration && (
+          <div className="flex items-center">
+            <Clock className="w-3 h-3 mr-1" />
+            {duration} {duration === 1 ? "hour" : "hours"}
+          </div>
+        )}
+      </div>
+
+      {quote && <div className="mt-3 pt-3 border-t border-[#30363d] text-xs italic text-[#8b949e]">"{quote}"</div>}
+
+      <button onClick={onViewCalendar} className="mt-3 text-xs text-[#58a6ff] hover:underline self-end">
         View Calendar
       </button>
     </div>

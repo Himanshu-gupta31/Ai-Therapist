@@ -45,6 +45,7 @@ model Habit {
   expertiselevel ExpertiseType
   level          LevelsType?
   targets        String?
+  goal           String?
   quote          Quote?        @relation(fields: [quoteId], references: [id])
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -45,7 +45,7 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-10 p-0 border rounded-xl shadow-lg overflow-hidden bg-white">
+    <div className="w-full max-w-2xl mx-auto mt-10 p-0 border rounded-xl shadow-lg overflow-hidden bg-black">
       {/* Header - Changed to yellow theme */}
       <div className="bg-gradient-to-r from-yellow-400 to-amber-500 p-4">
         <h1 className="text-xl mb-0 font-bold text-center text-white">Chat Assistant</h1>
