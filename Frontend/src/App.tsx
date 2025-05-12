@@ -9,6 +9,7 @@ import Dashboard from "./Pages/Dashboard"
 import DailyPlanForm from "./Pages/DailyPlan"
 import AuthContextProvider from "./component/context/AuthContextProvider"
 import Chat from "./component/Chat"
+import Timer from "./component/Timer"
 
 
 function  App() {
@@ -26,6 +27,7 @@ function  App() {
           <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="/dailyplan" element={<DailyPlanForm/>}/>
           <Route path="/chatbot" element={<Chat/>}/>
+          <Route path="/timer" element={<Timer/>}/>
           
           
           

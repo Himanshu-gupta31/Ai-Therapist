@@ -48,6 +48,7 @@ model Habit {
   goal           String?
   quote          Quote?        @relation(fields: [quoteId], references: [id])
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
 }
 
 model DailyPlanner {
@@ -61,7 +62,7 @@ model DailyPlanner {
   priority     String
   category     String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  createdAt    DateTime @default(now())
   @@unique([userId, date, startingtime])
 }
 
