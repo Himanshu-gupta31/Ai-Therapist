@@ -89,6 +89,7 @@ export default function DailyPlanForm() {
 
       setMessage(response.data.message);
       resetForm();
+      navigate("/dashboard")
       await newRequest.post("/google/calendar/create-event", {
         date,
         startingtime,
@@ -141,8 +142,9 @@ export default function DailyPlanForm() {
   },[auth])
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-lg mt-6 py-0">
-      <CardHeader className="space-y-1 bg-gradient-to-r from-teal-50 to-teal-100 border-b pt-2 ">
+    <div className="w-screen h-screen  overflow-hidden bg-black">
+    <Card className="w-full max-w-3xl mx-auto shadow-lg mt-6 py-0 border border-blue-400 rounded-xl">
+      <CardHeader className="space-y-1 bg-gradient-to-r from-blue-50 to-blue-100 border-b pt-2 rounded-xl">
         <CardTitle className="text-2xl font-bold text-center">
           Daily Plan
         </CardTitle>
@@ -153,10 +155,10 @@ export default function DailyPlanForm() {
 
       <CardContent className="pt-6">
         {message && (
-          <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-800">Success</AlertTitle>
-            <AlertDescription className="text-green-700">
+          <Alert className="mb-6 bg-blue-50 border-blue-200">
+            <CheckCircle className="h-4 w-4 text-blue-600" />
+            <AlertTitle className="text-blue-800">Success</AlertTitle>
+            <AlertDescription className="text-blue-700">
               {message}
             </AlertDescription>
           </Alert>
@@ -316,7 +318,7 @@ export default function DailyPlanForm() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full transition-all duration-200 bg-teal-500"
+              className="w-full transition-all duration-200 bg-blue-500"
               variant="default"
             >
               {loading ? "Adding..." : "Add to Schedule"}
@@ -325,5 +327,6 @@ export default function DailyPlanForm() {
         </form>
       </CardContent>
     </Card>
+</div>
   );
 }

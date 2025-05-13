@@ -43,7 +43,7 @@ model Habit {
   duration       Int
   quoteId        String?
   expertiselevel ExpertiseType
-  level          LevelsType?
+  level          LevelsType?    @default(Very_Easy)
   targets        String?
   goal           String?
   quote          Quote?        @relation(fields: [quoteId], references: [id])

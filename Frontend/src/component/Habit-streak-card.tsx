@@ -1,4 +1,5 @@
-import { CalendarDays, CheckCircle2, Clock, Target } from "lucide-react"
+import { CalendarDays, Clock, TrendingUp, Target } from "lucide-react"
+import { motion } from "framer-motion"
 
 interface HabitStreakCardProps {
   habitName: string
@@ -18,83 +19,85 @@ export function HabitStreakCard({
   last7CheckInCount,
   checkInDates = [],
   quote,
-  frequency,
-  duration,
-  goal,
+  frequency = "daily",
+  duration = 1,
+  goal = "",
   onViewCalendar,
 }: HabitStreakCardProps) {
-  
-  const today = new Date().toISOString().split("T")[0]
-  const isCheckedInToday = checkInDates.includes(today)
+  // Calculate the last 7 days for the mini calendar
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date()
+    date.setDate(date.getDate() - (6 - i))
+    return date.toISOString().split("T")[0]
+  })
 
   // Format frequency for display
-  const formatFrequency = (freq?: string) => {
-    if (!freq) return "Daily"
+  const formatFrequency = (freq: string) => {
     return freq.charAt(0).toUpperCase() + freq.slice(1)
   }
 
   return (
-    <div
-      className={`p-5 rounded-xl border ${
-        isCheckedInToday ? "border-[#58a6ff] bg-[#1f2937]" : "border-[#30363d] bg-[#161b22]"
-      } hover:border-[#58a6ff] transition-all duration-300 h-full flex flex-col`}
+    <motion.div
+      className="bg-[#161b22] rounded-xl border border-[#30363d] p-5 pb-14 h-full flex flex-col"
+      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-[#c9d1d9] line-clamp-1">{habitName}</h3>
-        <div
-          className={`px-2 py-1 rounded-md text-xs font-medium ${
-            isCheckedInToday ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"
-          }`}
-        >
-          {isCheckedInToday ? "Completed Today" : "Not Completed"}
-        </div>
-      </div>
+      <div className="flex-1">
+        <h3 className="text-xl font-bold text-[#c9d1d9] mb-2">{habitName}</h3>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-[#0d1117] p-3 rounded-lg">
-          <div className="text-[#8b949e] text-xs mb-1 flex items-center">
-            <CheckCircle2 className="w-3 h-3 mr-1" />
-            Current Streak
+        {goal && (
+          <div className="flex items-center gap-1 text-sm text-[#8b949e] mb-3">
+            <Target className="h-4 w-4 text-[#58a6ff]" />
+            <span>Goal: {goal}</span>
           </div>
-          <div className="text-xl font-bold text-[#c9d1d9]">{streak} days</div>
-        </div>
-        <div className="bg-[#0d1117] p-3 rounded-lg">
-          <div className="text-[#8b949e] text-xs mb-1 flex items-center">
-            <CalendarDays className="w-3 h-3 mr-1" />
-            Last 7 Days
-          </div>
-          <div className="text-xl font-bold text-[#c9d1d9]">{last7CheckInCount} days</div>
-        </div>
-      </div>
+        )}
 
-      {goal && (
-        <div className="bg-[#0d1117] p-3 rounded-lg mb-4">
-          <div className="text-[#8b949e] text-xs mb-1 flex items-center">
-            <Target className="w-3 h-3 mr-1" />
-            Goal
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-1 text-sm text-[#8b949e]">
+            <Clock className="h-4 w-4 text-[#58a6ff]" />
+            <span>{duration} hour(s)</span>
           </div>
-          <div className="text-sm text-[#c9d1d9]">{goal}</div>
+          <div className="flex items-center gap-1 text-sm text-[#8b949e]">
+            <CalendarDays className="h-4 w-4 text-[#58a6ff]" />
+            <span>{formatFrequency(frequency)}</span>
+          </div>
         </div>
-      )}
 
-      <div className="flex items-center text-xs text-[#8b949e] mt-auto">
-        <div className="flex items-center mr-4">
-          <Clock className="w-3 h-3 mr-1" />
-          {formatFrequency(frequency)}
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <div className="text-3xl font-bold text-[#58a6ff]">{streak}</div>
+            <div className="text-xs text-[#8b949e]">Current Streak</div>
+          </div>
+          <div className="flex items-center gap-1">
+            <TrendingUp className="h-4 w-4 text-[#58a6ff]" />
+            <span className="text-sm text-[#8b949e]">{last7CheckInCount}/7 days this week</span>
+          </div>
         </div>
-        {duration && (
-          <div className="flex items-center">
-            <Clock className="w-3 h-3 mr-1" />
-            {duration} {duration === 1 ? "hour" : "hours"}
+
+        <div className="flex gap-1 mb-4">
+          {last7Days.map((day, index) => {
+            const isCheckedIn = checkInDates.includes(day)
+            return (
+              <div
+                key={index}
+                className={`flex-1 aspect-square rounded-md flex items-center justify-center text-xs font-medium ${
+                  isCheckedIn ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"
+                }`}
+              >
+                {new Date(day).getDate()}
+              </div>
+            )
+          })}
+        </div>
+
+        {quote && (
+          <div className="mt-auto">
+            <div className="text-xs text-[#8b949e] italic border-l-2 border-[#58a6ff] pl-2">"{quote}"</div>
           </div>
         )}
       </div>
-
-      {quote && <div className="mt-3 pt-3 border-t border-[#30363d] text-xs italic text-[#8b949e]">"{quote}"</div>}
-
-      <button onClick={onViewCalendar} className="mt-3 text-xs text-[#58a6ff] hover:underline self-end">
-        View Calendar
-      </button>
-    </div>
+    </motion.div>
   )
 }
