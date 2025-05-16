@@ -133,13 +133,13 @@ export default function DailyPlanForm() {
   };
   const navigate=useNavigate()
 
-  const {auth}=useContext(AuthContext)
+  // const {auth}=useContext(AuthContext)
 
-  useEffect(()=>{
-    if(!auth){
-      navigate("/signin")
-    }
-  },[auth])
+  // useEffect(()=>{
+  //   if(!auth){
+  //     navigate("/signin")
+  //   }
+  // },[auth])
 
   return (
     <div className="w-screen h-screen  overflow-hidden bg-black">

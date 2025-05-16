@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { Clock, CirclePlus, Trash2, X, Calendar, CheckCircle2, CalendarDays } from "lucide-react"
 import { newRequest } from "@/utils/request"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { HabitStreakCard } from "@/component/Habit-streak-card"
 import { useNavigate } from "react-router-dom"
+import AuthContext from "@/component/context/AuthContext"
 
 interface Habit {
   habitName: string

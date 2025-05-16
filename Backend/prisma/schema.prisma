@@ -46,9 +46,11 @@ model Habit {
   level          LevelsType?    @default(Very_Easy)
   targets        String?
   goal           String?
+  levelUpdatedAt  DateTime?
   quote          Quote?        @relation(fields: [quoteId], references: [id])
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime       @default(now())
+
 }
 
 model DailyPlanner {

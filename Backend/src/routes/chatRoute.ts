@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { handleChat } from "../controllers/chatController";
+import {progressiveTarget} from "../controllers/progressiveTarget"
+import { VerifyJWT } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.route("/chat").post(handleChat)
+router.route("/chat/:habitId").post(VerifyJWT,progressiveTarget)
 
 export default router;
