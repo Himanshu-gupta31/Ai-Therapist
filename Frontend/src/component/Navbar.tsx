@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router-dom"
-import ScreenLife from "/ScreenLife.png"
+import Habitude from "../assets/Habitude-removebg-preview.png"
 import { useEffect, useState } from "react"
 import { newRequest } from "@/utils/request"
 import { Menu, X, User } from "lucide-react"
@@ -45,19 +45,17 @@ function Navbar() {
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src={ScreenLife}
-              alt="ScreenLife Logo"
-              className="w-[3.5rem] h-[3.5rem] sm:w-[4.5rem] sm:h-[4.5rem] text-blue-400"
+              src={Habitude}
+              alt="Habitude logo Logo"
+              className="w-[3.5rem] h-[10.5rem] sm:w-[4.5rem] sm:h-[4.5rem] bg-black rounded-full"
             />
-            <span className="text-blue-500 font-bold text-xl">Habit Tracker</span>
+            <span className="text-blue-500 font-bold text-xl">Habitude</span>
           </Link>
         </div>
 
-        {/* Center Navigation */}
+        {/* Center Navigation - Removed all links */}
         <div className="hidden md:flex gap-8 text-blue-200">
-          <Link to="/pricing" className="hover:text-blue-300 transition-colors">Pricing</Link>
-          <Link to="/features" className="hover:text-blue-300 transition-colors">Features</Link>
-          <Link to="/how-it-works" className="hover:text-blue-300 transition-colors">How it Works</Link>
+          {/* Links removed */}
         </div>
 
         {/* Right Side - Auth / Profile */}
@@ -99,12 +97,10 @@ function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Removed all links */}
       {mobileMenuOpen && (
         <div className="md:hidden mt-4 px-2 flex flex-col gap-4 bg-black text-blue-100">
-          <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-          <Link to="/features" onClick={() => setMobileMenuOpen(false)}>Features</Link>
-          <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)}>How it Works</Link>
+          {/* Links removed */}
 
           {isLoading ? (
             <span className="text-blue-500">Loading...</span>

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { Calendar, CheckCircle, TrendingUp } from "lucide-react"
+import { Link } from "react-router-dom"
 
 function HomeSection() {
   return (
@@ -37,8 +38,10 @@ function HomeSection() {
           animate={{ opacity: 1 }} 
           transition={{ delay: 0.6, duration: 0.6 }}
         >
-          <Button className="bg-blue-700">Get Started Free</Button>
-          <Button className="bg-white text-blue-400">See How it Works
+          <Link to="/signup">
+          <Button className="bg-blue-700 cursor-pointer">Get Started</Button>
+          </Link>
+          <Button className="bg-white text-blue-400 cursor-pointer">See How it Works //TODO:
           <TrendingUp className="h-8 w-8 text-blue-500" />
           </Button>
         </motion.div>
