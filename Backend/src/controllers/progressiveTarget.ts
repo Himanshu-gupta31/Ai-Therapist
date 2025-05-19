@@ -25,6 +25,7 @@ export const progressiveTarget = async (req: Request, res: Response) => {
         level: true,
         levelUpdatedAt: true,
         goal: true,
+        suggestedTarget: true,
       },
     });
 
@@ -33,7 +34,7 @@ export const progressiveTarget = async (req: Request, res: Response) => {
       return;
     }
 
-    const { habitName, goal, level, checkInDates, levelUpdatedAt } = habit;
+    const { habitName, goal, level, checkInDates, levelUpdatedAt, suggestedTarget } = habit;
 
     if (!goal) {
       res.status(500).json({ message: "Goal not found for habit." });
@@ -82,35 +83,74 @@ export const progressiveTarget = async (req: Request, res: Response) => {
       newLevel = LevelsType.Very_Hard;
     }
 
-    // Construct the message for AI in all cases
-    const message = `Habit Name: ${habitName}
+    // Check if we need to call AI or can use existing target
+    const shouldCallAI = newLevel !== null || !suggestedTarget;
+
+    let responseData;
+    
+    if (shouldCallAI) {
+      // Only call AI if the level has changed or no suggestedTarget exists
+      const message = `Habit Name: ${habitName}
 Goal: ${goal}
 Current Level: ${newLevel ?? level}`;
+console.log("inside the calling of AI through send message")
+      const result = await chatSession.sendMessage(message);
+      const responseText = await result.response.text();
 
-    const result = await chatSession.sendMessage(message);
-    const responseText = await result.response.text();
+      // Parse responseText
+      try {
+        const jsonString = responseText.replace(/```json\n|\n```/g, "").trim();
+        const parsedData = JSON.parse(jsonString);
+        
+        // Extract fields from parsed data
+        responseData = {
+          habit: parsedData.Habit || habitName,
+          goal: parsedData.Goal || goal,
+          currentLevel: parsedData["Current Level"] || (newLevel ?? level),
+          suggestedTarget: parsedData["Suggested Target"] || "",
+        };
+        
+        if (!responseData.suggestedTarget) {
+          res.status(500).json({ message: "Suggested target not found in response" });
+          return;
+        }
+        
+        // Update the habit with new suggestedTarget
+        await prisma.habit.update({
+          where: { id: habitId },
+          data: {
+            suggestedTarget: responseData.suggestedTarget,
+            ...(newLevel ? { level: newLevel, levelUpdatedAt: today } : {})
+          },
+        });
+      } catch (parseError) {
+        console.error("Error parsing responseText:", parseError);
+        res.status(500).json({ message: "Failed to parse response data" });
+        return;
+      }
+    } else {
+      // Use existing suggested target if level hasn't changed
+      responseData = {
+        habit: habitName,
+        goal: goal,
+        currentLevel: level,
+        suggestedTarget: suggestedTarget,
+      };
+    }
 
     if (newLevel) {
-      await prisma.habit.update({
-        where: { id: habitId },
-        data: {
-          level: newLevel,
-          levelUpdatedAt: today,
-        },
-      });
-
       res.status(200).json({
         message: `Habit level upgraded to ${newLevel}`,
         level: newLevel,
         filteredCheckin,
-        responseText,
+        ...responseData,
       });
     } else {
       res.status(200).json({
         message: "No level change",
         level,
         filteredCheckin,
-        responseText,
+        ...responseData,
       });
     }
   } catch (error) {
