@@ -118,7 +118,12 @@ export default function UnifiedDashboard() {
       // Fetch progressive targets and update habits for every habit
       const updatedHabits = await Promise.all(
         fetchedHabits.map(async (habit: Habit) => {
-          if (habit.id && habit.habitName && habit.goal) {
+          if (
+            habit.id &&
+            habit.habitName &&
+            habit.goal &&
+            habit.expertiselevel === "Beginner"
+          ) {
             try {
               const target = await fetchProgressiveTarget(
                 habit.id,

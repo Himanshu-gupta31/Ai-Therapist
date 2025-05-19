@@ -1,5 +1,8 @@
+"use client";
+
 import { CalendarDays, Clock, TrendingUp, Target } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 interface HabitStreakCardProps {
   habitName: string;
@@ -28,6 +31,8 @@ export function HabitStreakCard({
   expertiselevel,
   onViewCalendar,
 }: HabitStreakCardProps) {
+  const [showAiSuggestion, setShowAiSuggestion] = useState(false);
+
   // Calculate the last 7 days for the mini calendar
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
@@ -49,10 +54,14 @@ export function HabitStreakCard({
       transition={{ duration: 0.3 }}
     >
       <div className="flex-1">
-        <h3 className="text-xl font-bold text-[#c9d1d9] mb-2">{habitName}</h3>
-        <h3 className="text-xl font-bold text-[#c9d1d9] mb-2">
-          {expertiselevel}
-        </h3>
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="text-xl font-bold text-[#c9d1d9]">{habitName}</h3>
+          {expertiselevel && (
+            <span className="text-sm font-medium text-[#8b949e]">
+              {expertiselevel}
+            </span>
+          )}
+        </div>
 
         {goal && (
           <div className="flex items-center gap-1 text-sm text-[#8b949e] mb-3">
@@ -104,17 +113,79 @@ export function HabitStreakCard({
         </div>
 
         {quote && (
-          <div className="mt-auto">
+          <div className="mt-2">
             <div className="text-xs text-[#8b949e] italic border-l-2 border-[#58a6ff] pl-2">
               "{quote}"
             </div>
           </div>
         )}
+
         {suggestedTarget && (
-          <div className="mt-auto">
-            <div className="text-xs text-[#8b949e] italic border-l-2 border-[#58a6ff] pl-2">
-              "{suggestedTarget}"
+          <div className="mt-4">
+            <div className="flex items-center mb-2">
+              {/* Improved custom checkbox */}
+              <div className="relative flex items-center">
+                <input
+                  type="checkbox"
+                  id={`aiSuggestion-${habitName}`}
+                  checked={showAiSuggestion}
+                  onChange={() => setShowAiSuggestion(!showAiSuggestion)}
+                  className="sr-only" // Hide the actual checkbox but keep it accessible
+                />
+                <div
+                  className={`w-5 h-5 flex items-center justify-center rounded border ${
+                    showAiSuggestion
+                      ? "bg-[#58a6ff] border-[#58a6ff]"
+                      : "bg-[#0d1117] border-[#30363d]"
+                  } cursor-pointer transition-colors duration-200`}
+                  onClick={() => setShowAiSuggestion(!showAiSuggestion)}
+                >
+                  {showAiSuggestion && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 3L4.5 8.5L2 6"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <label
+                  htmlFor={`aiSuggestion-${habitName}`}
+                  className="ml-2 text-sm text-[#8b949e] cursor-pointer"
+                >
+                  AI Suggestion
+                </label>
+              </div>
             </div>
+
+            {/* AnimatePresence helps with smooth mounting/unmounting */}
+            <AnimatePresence>
+              {showAiSuggestion && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.15, ease: "easeInOut" }}
+                  className="bg-[#1f2937] rounded-md p-3 border-l-2 border-[#58a6ff] overflow-hidden"
+                >
+                  <div className="text-xs text-[#8b949e] font-medium mb-1">
+                    Suggested Target:
+                  </div>
+                  <div className="text-sm text-[#c9d1d9]">
+                    {suggestedTarget}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
