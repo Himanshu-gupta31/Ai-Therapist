@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import {
   Clock,
   CirclePlus,
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { HabitStreakCard } from "@/component/Habit-streak-card";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "@/component/context/AuthContext";
+
 
 interface Habit {
   habitName: string;
@@ -376,7 +376,7 @@ export default function UnifiedDashboard() {
     setCompletedHabit(updatedHabits);
     localStorage.setItem("completedHabits", JSON.stringify(updatedHabits));
   };
-
+  
   // Select a suggestion
   const selectSuggestion = (suggestion: string) => {
     setHabitName(suggestion);
@@ -476,6 +476,29 @@ export default function UnifiedDashboard() {
   //     navigate("/dashboard")
   //   }
   // },[auth])
+
+  //add Coins
+
+
+  const addCoins = async (habitId: string) => {
+    try {
+      await newRequest.post(`/users/coins/${habitId}`);
+      console.log(`Coins added for habit: ${habitId}`);
+    } catch (error) {
+      console.error(`Failed to add coins for habit ${habitId}:`, error);
+    }
+  };
+  useEffect(() => {
+    const updateCoins = async () => {
+      for (const habit of habits) {
+        if (habit.lastCheckIn && habit.id) {
+          await addCoins(habit.id);
+        }
+      }
+    };
+  
+    updateCoins();
+  }, [habits.map((h) => h.lastCheckIn).join(",")]);
 
   // 1. Fix quotes not loading on page mount by adding a separate useEffect
   // Add this after the existing useEffect for loading data on component mount

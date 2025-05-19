@@ -1,8 +1,11 @@
+"use client"
+
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import Habitude from "../assets/Habitude-removebg-preview.png"
 import { useEffect, useState } from "react"
 import { newRequest } from "@/utils/request"
 import { Menu, X, User } from "lucide-react"
+import Coins from "../assets/Coins.png"
 
 function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -10,6 +13,16 @@ function Navbar() {
   const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
   const location = useLocation()
+  const [coins, setCoins] = useState(0)
+
+  const getCoins = async () => {
+    try {
+      const response = await newRequest.get("/users/getcoins")
+      setCoins(response.data.allCoins.coins)
+    } catch (error) {
+      console.log("Error")
+    }
+  }
 
   const verifyUser = async () => {
     setIsLoading(true)
@@ -37,15 +50,20 @@ function Navbar() {
     }
   }
 
+  useEffect(() => {
+    if (loggedIn) {
+      getCoins()
+    }
+  })
+
   return (
     <nav className="w-full bg-black text-white border-b border-blue-100 px-2 py-3">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        
         {/* Logo + Title */}
         <div className="flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src={Habitude}
+              src={Habitude || "/placeholder.svg"}
               alt="Habitude logo Logo"
               className="w-[3.5rem] h-[10.5rem] sm:w-[4.5rem] sm:h-[4.5rem] bg-black rounded-full"
             />
@@ -54,9 +72,7 @@ function Navbar() {
         </div>
 
         {/* Center Navigation - Removed all links */}
-        <div className="hidden md:flex gap-8 text-blue-200">
-          {/* Links removed */}
-        </div>
+        <div className="hidden md:flex gap-8 text-blue-200">{/* Links removed */}</div>
 
         {/* Right Side - Auth / Profile */}
         <div className="hidden md:flex items-center gap-4">
@@ -64,10 +80,7 @@ function Navbar() {
             <span className="text-blue-500">Loading...</span>
           ) : loggedIn ? (
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
-              >
+              <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600">
                 Logout
               </button>
               <Link to="/dashboard">
@@ -75,6 +88,13 @@ function Navbar() {
                   <User size={20} color="white" />
                 </div>
               </Link>
+              <div
+                className="flex items-center gap-1 bg-gradient-to-r from-blue-900 to-blue-800 px-3 py-1.5 rounded-full border border-blue-700 hover:brightness-110 transition-all"
+                title="Your current coins"
+              >
+                <img src={Coins} className="w-5 h-5 object-contain" alt="Coins" />
+                <span className="font-medium text-yellow-100">{coins}</span>
+              </div>
             </div>
           ) : (
             <>
@@ -89,10 +109,7 @@ function Navbar() {
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-blue-500"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
+        <button className="md:hidden text-blue-500" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -106,8 +123,16 @@ function Navbar() {
             <span className="text-blue-500">Loading...</span>
           ) : loggedIn ? (
             <>
-              <Link to="/dashboard" className="mt-2 text-blue-300" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
-              <button onClick={handleLogout} className="text-red-500">Logout</button>
+              <Link to="/dashboard" className="mt-2 text-blue-300" onClick={() => setMobileMenuOpen(false)}>
+                Dashboard
+              </Link>
+              <div className="flex items-center gap-2 bg-gradient-to-r from-blue-900 to-blue-800 p-3 rounded-lg border border-blue-700 my-2">
+                <img src={Coins || "/placeholder.svg"} className="w-5 h-5 object-contain" alt="Coins" />
+                <span className="font-medium text-yellow-100">{coins} coins</span>
+              </div>
+              <button onClick={handleLogout} className="text-red-500">
+                Logout
+              </button>
             </>
           ) : (
             <>
