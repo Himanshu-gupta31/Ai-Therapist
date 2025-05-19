@@ -1,66 +1,90 @@
-import { useState, useEffect, useContext } from "react"
-import { Clock, CirclePlus, Trash2, X, Calendar, CheckCircle2, CalendarDays } from "lucide-react"
-import { newRequest } from "@/utils/request"
-import { Button } from "@/components/ui/button"
-import { motion } from "framer-motion"
-import { HabitStreakCard } from "@/component/Habit-streak-card"
-import { useNavigate } from "react-router-dom"
-import AuthContext from "@/component/context/AuthContext"
+import { useState, useEffect, useContext } from "react";
+import {
+  Clock,
+  CirclePlus,
+  Trash2,
+  X,
+  Calendar,
+  CheckCircle2,
+  CalendarDays,
+} from "lucide-react";
+import { newRequest } from "@/utils/request";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { HabitStreakCard } from "@/component/Habit-streak-card";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "@/component/context/AuthContext";
 
 interface Habit {
-  habitName: string
-  description: string
-  id?: string
-  streak?: number
-  longestStreak?: number
-  lastCheckIn?: string | null
-  checkInDates?: string[]
-  frequency?: string
-  duration?: number
-  goal?: string
-  last7CheckInCount?: number
-  completedDays?: string[]
+  habitName: string;
+  description: string;
+  id?: string;
+  streak?: number;
+  longestStreak?: number;
+  lastCheckIn?: string | null;
+  checkInDates?: string[];
+  frequency?: string;
+  duration?: number;
+  goal?: string;
+  last7CheckInCount?: number;
+  completedDays?: string[];
+  suggestedTarget?: string;
+  expertiselevel?: string;
+  level?: string;
 }
 
 interface DailyPlan {
-  id: string
-  date: Date
-  planName: string
-  priority: string
-  description: string
-  time: string
-  category: string
+  id: string;
+  date: Date;
+  planName: string;
+  priority: string;
+  description: string;
+  time: string;
+  category: string;
 }
-
+interface ProgressiveTargetResponse {
+  message: string;
+  level: string;
+  filteredCheckin: string[];
+  habit: string;
+  goal: string;
+  currentLevel: string;
+  suggestedTarget: string;
+  expertiselevel: string;
+}
 export default function UnifiedDashboard() {
   // Habit state
-  const [habits, setHabits] = useState<Habit[]>([])
-  const [habitName, setHabitName] = useState("")
-  const [description, setDescription] = useState("")
-  const [frequency, setFrequency] = useState<string>("daily")
-  const [duration, setDuration] = useState<number>(1)
-  const [showModal, setShowModal] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
-  const [error, setError] = useState("")
-  const [suggestionFilter, setSuggestionFilter] = useState("")
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [completedHabit, setCompletedHabit] = useState<Record<string, boolean>>({})
-  const [viewingCalendarForHabit, setViewingCalendarForHabit] = useState<string | null>(null)
-  const [expertise, setExpertise] = useState("Beginner")
-  const [goal, setGoal] = useState("")
-  console.log("Habits", habits)
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [habitName, setHabitName] = useState("");
+  const [description, setDescription] = useState("");
+  const [frequency, setFrequency] = useState<string>("daily");
+  const [duration, setDuration] = useState<number>(1);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [suggestionFilter, setSuggestionFilter] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [completedHabit, setCompletedHabit] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [viewingCalendarForHabit, setViewingCalendarForHabit] = useState<
+    string | null
+  >(null);
+  const [expertise, setExpertise] = useState("Beginner");
+  const [goal, setGoal] = useState("");
+  console.log("Habits", habits);
   // Daily plan state
-  const [dailyplan, setDailyPlan] = useState<DailyPlan[]>([])
-  const [planLoading, setPlanLoading] = useState(false)
-  const [planError, setPlanError] = useState("")
+  const [dailyplan, setDailyPlan] = useState<DailyPlan[]>([]);
+  const [planLoading, setPlanLoading] = useState(false);
+  const [planError, setPlanError] = useState("");
   const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date()
-    return today.toISOString().split("T")[0]
-  })
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  });
   //Quotes state
-  const [quotes, setQuotes] = useState<Record<string, string>>({})
-  console.log("quotes", quotes)
+  const [quotes, setQuotes] = useState<Record<string, string>>({});
+  console.log("quotes", quotes);
   //Context
 
   // Habit suggestions
@@ -77,50 +101,84 @@ export default function UnifiedDashboard() {
     "Skincare",
     "Haircare",
     "Socialising",
-  ]
+  ];
 
   // Filter suggestions based on input
   const filteredSuggestions = habitSuggestion.filter((suggestion) =>
-    suggestion.toLowerCase().includes(suggestionFilter.toLowerCase()),
-  )
+    suggestion.toLowerCase().includes(suggestionFilter.toLowerCase())
+  );
 
   // Fetch habits
   const fetchHabits = async () => {
     try {
-      setLoading(true)
-      const response = await newRequest.get("/habit/getHabit")
-      setHabits(response.data.getHabit)
-      setError("")
+      setLoading(true);
+      const response = await newRequest.get("/habit/getHabit");
+      const fetchedHabits = response.data.getHabit;
+
+      // Fetch progressive targets and update habits for every habit
+      const updatedHabits = await Promise.all(
+        fetchedHabits.map(async (habit: Habit) => {
+          if (habit.id && habit.habitName && habit.goal) {
+            try {
+              const target = await fetchProgressiveTarget(
+                habit.id,
+                habit.habitName,
+                habit.goal
+              );
+              return {
+                ...habit,
+                suggestedTarget: target.suggestedTarget,
+                level: target.currentLevel,
+              };
+            } catch (err) {
+              setError(
+                `Failed to fetch progressive target for ${habit.habitName}`
+              );
+              return habit;
+            }
+          }
+          return habit;
+        })
+      );
+      setHabits(updatedHabits);
+      setError("");
     } catch (error) {
-      setError("Failed to load Habits")
-      console.error("Error fetching habits:", error)
+      setError("Failed to load Habits");
+      console.error("Error fetching habits:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Update the fetchHabitStreaks function to properly connect to the backend API
   // and update the habits with streak information
   const fetchHabitStreaks = async () => {
     try {
-      const response = await newRequest.get("/habit/streak")
+      const response = await newRequest.get("/habit/streak");
 
-      if (response.data && response.data.habits && response.data.habits.length > 0) {
+      if (
+        response.data &&
+        response.data.habits &&
+        response.data.habits.length > 0
+      ) {
         // Create a mapping of habit IDs to their streak data
-        const streakData = response.data.habits.reduce((acc: Record<string, any>, habit: any) => {
-          if (habit.habitId) {
-            acc[habit.habitId] = {
-              streak: habit.streak || 0,
-              longestStreak: habit.longestStreak || 0,
-              lastCheckIn: habit.lastCheckIn || null,
-              checkInDates: habit.checkInDates || [],
-              last7CheckInCount: habit.last7CheckInCount || 0,
-              completedDays: habit.completedDays || [],
-              goal: habit.goal || "",
+        const streakData = response.data.habits.reduce(
+          (acc: Record<string, any>, habit: any) => {
+            if (habit.habitId) {
+              acc[habit.habitId] = {
+                streak: habit.streak || 0,
+                longestStreak: habit.longestStreak || 0,
+                lastCheckIn: habit.lastCheckIn || null,
+                checkInDates: habit.checkInDates || [],
+                last7CheckInCount: habit.last7CheckInCount || 0,
+                completedDays: habit.completedDays || [],
+                goal: habit.goal || "",
+              };
             }
-          }
-          return acc
-        }, {})
+            return acc;
+          },
+          {}
+        );
 
         // Update habits with streak data
         setHabits((prevHabits) =>
@@ -134,28 +192,24 @@ export default function UnifiedDashboard() {
                 checkInDates: streakData[habit.id].checkInDates,
                 last7CheckInCount: streakData[habit.id].last7CheckInCount,
                 completedDays: streakData[habit.id].completedDays,
-                goal: streakData[habit.id].goal,
-              }
+                goal: habit.goal || streakData[habit.id].goal, //TODO changed and preserved the goal
+              };
             }
-            return habit
-          }),
-        )
+            return habit;
+          })
+        );
       }
     } catch (error) {
-      console.error("Error fetching habit streaks:", error)
+      console.error("Error fetching habit streaks:", error);
     }
-  }
+  };
 
   // Add a function to handle habit check-in
   const handleHabitCheckIn = async (habitId: string) => {
     try {
-      // First update the UI optimistically
-      habitCompletion(habitId)
+      habitCompletion(habitId);
+      const response = await newRequest.post(`/habit/checkin/${habitId}`);
 
-      // Then make the API call to update the streak on the server
-      const response = await newRequest.post(`/habit/checkin/${habitId}`)
-
-      // Update the habit with new streak data
       if (response.data) {
         setHabits((prevHabits) =>
           prevHabits.map((habit) => {
@@ -163,76 +217,115 @@ export default function UnifiedDashboard() {
               return {
                 ...habit,
                 streak: response.data.streak || habit.streak,
-                longestStreak: response.data.longestStreak || habit.longestStreak,
+                longestStreak:
+                  response.data.longestStreak || habit.longestStreak,
                 lastCheckIn: response.data.lastCheckIn || habit.lastCheckIn,
-                checkInDates: response.data.checkInDates || habit.checkInDates || [],
-              }
+                checkInDates:
+                  response.data.checkInDates || habit.checkInDates || [],
+                goal: response.data.goal || habit.goal || "",
+              };
             }
-
-            return habit
-          }),
-        )
+            return habit;
+          })
+        );
       }
 
-      // Refresh all habit streaks
-      fetchHabitStreaks()
-    } catch (error) {
-      console.error("Error checking in habit:", error)
-      // Revert the optimistic update if the API call fails
-      habitCompletion(habitId)
-    }
-  }
+      // Fetch progressive target after check-in
+      const habit = habits.find((h) => h.id === habitId);
+      if (habit && habit.habitName && habit.goal) {
+        const target = await fetchProgressiveTarget(
+          habitId,
+          habit.habitName,
+          habit.goal
+        );
+        setHabits((prevHabits) =>
+          prevHabits.map((h) =>
+            h.id === habitId
+              ? {
+                  ...h,
+                  suggestedTarget: target.suggestedTarget,
+                  level: target.currentLevel,
+                }
+              : h
+          )
+        );
+      }
 
+      fetchHabitStreaks();
+    } catch (error) {
+      console.error("Error checking in habit:", error);
+      habitCompletion(habitId);
+      setError("Failed to check in habit or fetch progressive target");
+    }
+  };
   // Fetch daily plans
   const fetchPlan = async () => {
     try {
-      setPlanLoading(true)
-      const response = await newRequest.get("/daily/fetchPlan")
-      setDailyPlan(response.data.fetchPlan)
-      setPlanError("")
+      setPlanLoading(true);
+      const response = await newRequest.get("/daily/fetchPlan");
+      setDailyPlan(response.data.fetchPlan);
+      setPlanError("");
     } catch (error) {
-      setPlanError("Failed to load daily plan")
-      console.log("Error fetching plan", error)
+      setPlanError("Failed to load daily plan");
+      console.log("Error fetching plan", error);
     } finally {
-      setPlanLoading(false)
+      setPlanLoading(false);
     }
-  }
-
+  };
+  const fetchProgressiveTarget = async (
+    habitId: string,
+    habitName: string,
+    goal: string
+  ): Promise<ProgressiveTargetResponse> => {
+    try {
+      setPlanLoading(true);
+      const response = await newRequest.post(`/chat/chat/${habitId}`, {
+        habitName,
+        goal,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching progressive target:", error);
+      throw new Error("Failed to fetch progressive target");
+    } finally {
+      setPlanLoading(false);
+    }
+  };
   //Daily plan for each date
   const changeDate = (days: number) => {
-    const newDate = new Date(selectedDate)
-    newDate.setDate(newDate.getDate() + days)
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + days);
 
-    const today = new Date().toISOString().split("T")[0]
-    const newDateStr = newDate.toISOString().split("T")[0]
+    const today = new Date().toISOString().split("T")[0];
+    const newDateStr = newDate.toISOString().split("T")[0];
 
     if (newDateStr <= today) {
-      setSelectedDate(newDateStr)
+      setSelectedDate(newDateStr);
     }
-  }
+  };
   const planForSelectedDate = dailyplan.filter((plan) => {
-    const planDateStr = new Date(plan.date).toISOString().split("T")[0]
-    return planDateStr === selectedDate
-  })
+    const planDateStr = new Date(plan.date).toISOString().split("T")[0];
+    return planDateStr === selectedDate;
+  });
 
   // Delete habit
   const deleteHabits = async (habitId: string) => {
     try {
-      setDeleteLoading(habitId)
-      await newRequest.delete(`/habit/deleteHabit/${habitId}`)
-      setDeleteLoading(null)
-      fetchHabits()
+      setDeleteLoading(habitId);
+      await newRequest.delete(`/habit/deleteHabit/${habitId}`);
+      setDeleteLoading(null);
+      fetchHabits();
     } catch (error) {
-      setError("Failed to delete Habit")
-      console.error("Error deleting habits:", error)
-      setDeleteLoading(null)
+      setError("Failed to delete Habit");
+      console.error("Error deleting habits:", error);
+      setDeleteLoading(null);
     }
-  }
+  };
 
   // Add habit
   const addHabitHandler = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       await newRequest.post("/habit/addHabit", {
         habitName,
         description,
@@ -240,140 +333,140 @@ export default function UnifiedDashboard() {
         duration,
         expertise,
         goal,
-      })
-      setHabitName("")
-      setDescription("")
-      setFrequency("daily")
-      setDuration(1)
-      setSuggestionFilter("")
-      setShowModal(false)
-      setExpertise("Beginner")
-      setError("")
-      setGoal("")
-      await fetchHabits()
-      await fetchHabitStreaks()
+      });
+      setHabitName("");
+      setDescription("");
+      setFrequency("daily");
+      setDuration(1);
+      setSuggestionFilter("");
+      setShowModal(false);
+      setExpertise("Beginner");
+      setError("");
+      setGoal("");
+      await fetchHabits();
+      await fetchHabitStreaks();
     } catch (error) {
-      setError("Failed to add habit")
-      console.error("Error adding habit:", error)
+      setError("Failed to add habit");
+      console.error("Error adding habit:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // delete Habit
   const handleDeletePlan = async (planId: string) => {
     try {
-      setDeleteLoading(planId)
-      await newRequest.delete(`/daily/deleteplan/${planId}`)
-      setDeleteLoading(null)
-      fetchPlan()
+      setDeleteLoading(planId);
+      await newRequest.delete(`/daily/deleteplan/${planId}`);
+      setDeleteLoading(null);
+      fetchPlan();
     } catch (error) {
-      setPlanError("Failed to delete plan")
-      console.error("Error deleting plan:", error)
-      setDeleteLoading(null)
+      setPlanError("Failed to delete plan");
+      console.error("Error deleting plan:", error);
+      setDeleteLoading(null);
     }
-  }
+  };
   // Toggle habit completion
   const habitCompletion = (habitId: string) => {
     const updatedHabits = {
       ...completedHabit,
       [habitId]: !completedHabit[habitId],
-    }
+    };
 
-    setCompletedHabit(updatedHabits)
-    localStorage.setItem("completedHabits", JSON.stringify(updatedHabits))
-  }
+    setCompletedHabit(updatedHabits);
+    localStorage.setItem("completedHabits", JSON.stringify(updatedHabits));
+  };
 
   // Select a suggestion
   const selectSuggestion = (suggestion: string) => {
-    setHabitName(suggestion)
-    setSuggestionFilter("")
-    setShowSuggestions(false)
-  }
+    setHabitName(suggestion);
+    setSuggestionFilter("");
+    setShowSuggestions(false);
+  };
 
   // Get priority color
   const priorityColor = (priority: string) => {
     switch (priority) {
       case "High":
-        return "bg-red-100 text-red-500"
+        return "bg-red-100 text-red-500";
       case "Medium":
-        return "bg-amber-100 text-amber-500"
+        return "bg-amber-100 text-amber-500";
       case "Low":
-        return "bg-green-100 text-green-500"
+        return "bg-green-100 text-green-500";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
   // Get category color
   const categoryColor = (category: string) => {
     switch (category) {
       case "Health":
-        return "bg-blue-100 text-blue-600"
+        return "bg-blue-100 text-blue-600";
       case "Work":
-        return "bg-indigo-100 text-indigo-600"
+        return "bg-indigo-100 text-indigo-600";
       case "Personal":
-        return "bg-emerald-100 text-emerald-600"
+        return "bg-emerald-100 text-emerald-600";
       case "Study":
-        return "bg-cyan-100 text-cyan-600"
+        return "bg-cyan-100 text-cyan-600";
       default:
-        return "bg-teal-100 text-teal-600"
+        return "bg-teal-100 text-teal-600";
     }
-  }
+  };
 
   // Load data on component mount
   useEffect(() => {
     const loadData = async () => {
-      await fetchHabits()
-      await fetchHabitStreaks()
-      await fetchPlan()
-    }
-    loadData()
-  }, [])
+      await fetchHabits();
+      await fetchHabitStreaks();
+      await fetchPlan();
+    };
+    loadData();
+  }, []);
   // Quotes For Habit
   const HabitQuotes = async (habitId: string) => {
     try {
-      const response = await newRequest.get(`/quotes/getQuotes/${habitId}`)
+      const response = await newRequest.get(`/quotes/getQuotes/${habitId}`);
       if (!response.data.quote) {
-        setError("No quote found")
-        return
+        setError("No quote found");
+        return;
       }
       setQuotes((prev) => ({
         ...prev,
         [habitId]: response.data.quote.text,
-      }))
+      }));
     } catch (error) {
-      setError("Failed to load quotes")
-      console.error("Error loading quotes:", error)
+      setError("Failed to load quotes");
+      console.error("Error loading quotes:", error);
     }
-  }
+  };
   useEffect(() => {
     habits.forEach((habit) => {
       if (habit.lastCheckIn && habit.id) {
-        HabitQuotes(habit.id)
+        HabitQuotes(habit.id);
       }
-    })
-  }, [habits.map((h) => h.lastCheckIn).join(",")])
+    });
+  }, [habits.map((h) => h.lastCheckIn).join(",")]);
   // Handle completed habits persistence
   useEffect(() => {
-    const todayUTC = new Date().toISOString().split("T")[0]
-    const lastDate = localStorage.getItem("lastcheckedDate")
+    const todayUTC = new Date().toISOString().split("T")[0];
+    const lastDate = localStorage.getItem("lastcheckedDate");
 
     if (lastDate !== todayUTC) {
       // New day, reset completedHabit
-      setCompletedHabit({})
-      localStorage.setItem("completedHabits", JSON.stringify({})) // Also clear in localStorage
-      localStorage.setItem("lastcheckedDate", todayUTC)
+      setCompletedHabit({});
+      localStorage.setItem("completedHabits", JSON.stringify({})); // Also clear in localStorage
+      localStorage.setItem("lastcheckedDate", todayUTC);
     } else {
       // Same day, load from localStorage
-      const storedHabits = localStorage.getItem("completedHabits")
+      const storedHabits = localStorage.getItem("completedHabits");
       if (storedHabits) {
-        setCompletedHabit(JSON.parse(storedHabits))
+        setCompletedHabit(JSON.parse(storedHabits));
       }
     }
-  }, [])
+  }, []);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // const {auth}=useContext(AuthContext)
   // useEffect(()=>{
@@ -392,13 +485,13 @@ export default function UnifiedDashboard() {
       if (habits.length > 0) {
         habits.forEach((habit) => {
           if (habit.id) {
-            HabitQuotes(habit.id)
+            HabitQuotes(habit.id);
           }
-        })
+        });
       }
-    }
-    loadQuotes()
-  }, [habits.length]) // Only re-run when the number of habits changes
+    };
+    loadQuotes();
+  }, [habits.length]); // Only re-run when the number of habits changes
 
   return (
     <div className="min-h-screen bg-[#0d1117] p-4 md:p-8">
@@ -435,12 +528,14 @@ export default function UnifiedDashboard() {
                 <Calendar className="w-5 h-5 text-[#58a6ff]" />
                 Habit Streaks
               </h2>
-              <p className="text-[#8b949e] text-sm">Track each habit's consistency over time</p>
+              <p className="text-[#8b949e] text-sm">
+                Track each habit's consistency over time
+              </p>
             </div>
             <Button
               onClick={() => {
-                setShowModal(true)
-                setSuggestionFilter("")
+                setShowModal(true);
+                setSuggestionFilter("");
               }}
               className="bg-[#1f6feb] hover:bg-[#388bfd] text-white border-none"
             >
@@ -466,14 +561,17 @@ export default function UnifiedDashboard() {
                 <Calendar className="h-8 w-8 text-[#58a6ff]" />
               </div>
               <p className="text-[#c9d1d9] mb-2">No habits added yet</p>
-              <p className="text-[#8b949e] text-sm">Start building better routines by adding your first habit</p>
+              <p className="text-[#8b949e] text-sm">
+                Start building better routines by adding your first habit
+              </p>
             </div>
           ) : (
             // 2. Fix the view calendar button positioning by modifying the habit card container
             // Replace the existing habit card container div with this updated version
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {habits.map(
-                (habit) =>
+              {habits.map((habit) => {
+                console.log("this is the goal going", habit.goal);
+                return (
                   habit.id && (
                     <div key={habit.id} className="relative">
                       <HabitStreakCard
@@ -485,14 +583,18 @@ export default function UnifiedDashboard() {
                         frequency={habit.frequency}
                         duration={habit.duration}
                         goal={habit.goal || ""}
-                        onViewCalendar={() => setViewingCalendarForHabit(habit.id || null)}
+                        suggestedTarget={habit.suggestedTarget || ""}
+                        expertiselevel={habit.expertiselevel || ""}
+                        onViewCalendar={() =>
+                          setViewingCalendarForHabit(habit.id || null)
+                        }
                       />
                       <div className="absolute top-4 right-4 flex gap-2 z-10">
                         <button
                           className="w-8 h-8 bg-[#1f2937] rounded-md flex items-center justify-center text-[#8b949e] hover:text-[#58a6ff]"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            habit.id && handleHabitCheckIn(habit.id)
+                            e.stopPropagation();
+                            habit.id && handleHabitCheckIn(habit.id);
                           }}
                         >
                           <CheckCircle2 className="h-4 w-4" />
@@ -500,8 +602,8 @@ export default function UnifiedDashboard() {
                         <button
                           className="w-8 h-8 bg-[#1f2937] rounded-md flex items-center justify-center text-[#8b949e] hover:text-[#f85149]"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            habit.id && deleteHabits(habit.id)
+                            e.stopPropagation();
+                            habit.id && deleteHabits(habit.id);
                           }}
                           disabled={deleteLoading === habit.id}
                         >
@@ -516,15 +618,18 @@ export default function UnifiedDashboard() {
                       <div className="absolute bottom-4 left-0 right-0 flex justify-center">
                         <button
                           className="px-4 py-1.5 bg-[#1f2937] rounded-md text-xs text-[#8b949e] hover:text-[#58a6ff] flex items-center gap-1.5 transition-colors"
-                          onClick={() => setViewingCalendarForHabit(habit.id || null)}
+                          onClick={() =>
+                            setViewingCalendarForHabit(habit.id || null)
+                          }
                         >
                           <CalendarDays className="h-3.5 w-3.5" />
                           View Calendar
                         </button>
                       </div>
                     </div>
-                  ),
-              )}
+                  )
+                );
+              })}
             </div>
           )}
         </motion.div>
@@ -559,7 +664,9 @@ export default function UnifiedDashboard() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
               <CalendarDays className="text-[#58a6ff]" />
-              <h2 className="ml-2 text-xl font-bold text-[#c9d1d9]">Daily Plans</h2>
+              <h2 className="ml-2 text-xl font-bold text-[#c9d1d9]">
+                Daily Plans
+              </h2>
             </div>
             <Button
               onClick={() => navigate && navigate("/dailyplan")}
@@ -571,9 +678,15 @@ export default function UnifiedDashboard() {
           </div>
 
           <div className="space-y-4">
-            {planLoading && <div className="text-center py-4 text-[#8b949e]">Loading plans...</div>}
+            {planLoading && (
+              <div className="text-center py-4 text-[#8b949e]">
+                Loading plans...
+              </div>
+            )}
 
-            {planError && <div className="text-[#f85149] text-center py-4">{planError}</div>}
+            {planError && (
+              <div className="text-[#f85149] text-center py-4">{planError}</div>
+            )}
 
             {dailyplan.length === 0 && !planLoading && !planError && (
               <div className="text-center py-8 bg-[#161b22] rounded-lg border border-[#30363d]">
@@ -581,7 +694,9 @@ export default function UnifiedDashboard() {
                   <CalendarDays className="h-8 w-8 text-[#58a6ff]" />
                 </div>
                 <p className="text-[#c9d1d9] mb-2">No plans found</p>
-                <p className="text-[#8b949e] text-sm">Start organizing your day by adding your first plan</p>
+                <p className="text-[#8b949e] text-sm">
+                  Start organizing your day by adding your first plan
+                </p>
               </div>
             )}
 
@@ -598,17 +713,25 @@ export default function UnifiedDashboard() {
 
                     <div className="flex-1 flex justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-[#c9d1d9]">{plan.planName}</h3>
-                        <p className="text-[#8b949e] text-sm mt-1">{plan.description}</p>
+                        <h3 className="text-lg font-medium text-[#c9d1d9]">
+                          {plan.planName}
+                        </h3>
+                        <p className="text-[#8b949e] text-sm mt-1">
+                          {plan.description}
+                        </p>
 
                         <div className="flex gap-2 mt-3 items-center">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${categoryColor(plan.category)}`}
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${categoryColor(
+                              plan.category
+                            )}`}
                           >
                             {plan.category}
                           </span>
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColor(plan.priority)}`}
+                            className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColor(
+                              plan.priority
+                            )}`}
                           >
                             {plan.priority} Priority
                           </span>
@@ -623,14 +746,18 @@ export default function UnifiedDashboard() {
 
                       <div className="flex items-start ml-6">
                         <Clock className="w-4 h-4 mr-1 text-[#58a6ff]" />
-                        <span className="text-[#8b949e] text-sm">{plan.time}</span>
+                        <span className="text-[#8b949e] text-sm">
+                          {plan.time}
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-[#8b949e] text-center mt-6">No plans for this date.</p>
+              <p className="text-[#8b949e] text-center mt-6">
+                No plans for this date.
+              </p>
             )}
           </div>
         </div>
@@ -641,22 +768,29 @@ export default function UnifiedDashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1000]">
           <div className="bg-[#161b22] rounded-lg p-6 w-full max-w-md shadow-xl border border-[#30363d]">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-[#c9d1d9]">Add New Habit</h2>
-              <button onClick={() => setShowModal(false)} className="text-[#8b949e] hover:text-[#c9d1d9]">
+              <h2 className="text-xl font-bold text-[#c9d1d9]">
+                Add New Habit
+              </h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-[#8b949e] hover:text-[#c9d1d9]"
+              >
                 <X />
               </button>
             </div>
             <div className="space-y-4">
               {/* Suggestion Box */}
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Find Suggestions</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Find Suggestions
+                </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={suggestionFilter}
                     onChange={(e) => {
-                      setSuggestionFilter(e.target.value)
-                      setShowSuggestions(true)
+                      setSuggestionFilter(e.target.value);
+                      setShowSuggestions(true);
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     placeholder="Type to find suggestions"
@@ -682,7 +816,9 @@ export default function UnifiedDashboard() {
 
               {/* Habit Name */}
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Habit Name</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Habit Name
+                </label>
                 <input
                   type="text"
                   value={habitName}
@@ -694,7 +830,9 @@ export default function UnifiedDashboard() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Description</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Description
+                </label>
                 <input
                   value={description}
                   placeholder="Enter description"
@@ -704,7 +842,9 @@ export default function UnifiedDashboard() {
               </div>
               {/* Frequency */}
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Frequency</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Frequency
+                </label>
                 <select
                   value={frequency}
                   onChange={(e) => setFrequency(e.target.value)}
@@ -718,7 +858,9 @@ export default function UnifiedDashboard() {
 
               {/* Duration */}
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Duration (hours)</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Duration (hours)
+                </label>
                 <input
                   type="number"
                   value={duration}
@@ -730,13 +872,14 @@ export default function UnifiedDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Expertise Level</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Expertise Level
+                </label>
                 <select
                   value={expertise}
                   onChange={(e) => setExpertise(e.target.value)}
                   className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent text-[#c9d1d9]"
                 >
-                  
                   <option value="Beginner">Beginner</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Expert">Expert</option>
@@ -744,7 +887,9 @@ export default function UnifiedDashboard() {
               </div>
               {/* Goal */}
               <div>
-                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">Goal</label>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Goal
+                </label>
                 <input
                   type="text"
                   value={goal}
@@ -781,31 +926,46 @@ export default function UnifiedDashboard() {
           <div className="bg-[#161b22] rounded-lg p-6 w-full max-w-2xl shadow-xl border border-[#30363d]">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-[#c9d1d9]">
-                Check-in Calendar: {habits.find((h) => h.id === viewingCalendarForHabit)?.habitName}
+                Check-in Calendar:{" "}
+                {
+                  habits.find((h) => h.id === viewingCalendarForHabit)
+                    ?.habitName
+                }
               </h2>
-              <button onClick={() => setViewingCalendarForHabit(null)} className="text-[#8b949e] hover:text-[#c9d1d9]">
+              <button
+                onClick={() => setViewingCalendarForHabit(null)}
+                className="text-[#8b949e] hover:text-[#c9d1d9]"
+              >
                 <X />
               </button>
             </div>
             <div className="p-4 min-h-[300px] bg-[#0d1117] rounded-lg border border-[#30363d]">
               <div className="grid grid-cols-7 gap-2">
                 {Array.from({ length: 30 }).map((_, index) => {
-                  const date = new Date()
-                  date.setDate(date.getDate() - (29 - index))
-                  const dateStr = date.toISOString().split("T")[0]
-                  const habit = habits.find((h) => h.id === viewingCalendarForHabit)
-                  const isCheckedIn = habit?.checkInDates?.includes(dateStr)
+                  const date = new Date();
+                  date.setDate(date.getDate() - (29 - index));
+                  const dateStr = date.toISOString().split("T")[0];
+                  const habit = habits.find(
+                    (h) => h.id === viewingCalendarForHabit
+                  );
+                  const isCheckedIn = habit?.checkInDates?.includes(dateStr);
 
                   return (
                     <div
                       key={index}
                       className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs
-                        ${isCheckedIn ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"}`}
+                        ${
+                          isCheckedIn
+                            ? "bg-[#58a6ff] text-[#0d1117]"
+                            : "bg-[#1f2937] text-[#8b949e]"
+                        }`}
                     >
                       <span className="font-medium">{date.getDate()}</span>
-                      <span>{date.toLocaleDateString("en-US", { month: "short" })}</span>
+                      <span>
+                        {date.toLocaleDateString("en-US", { month: "short" })}
+                      </span>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -813,5 +973,5 @@ export default function UnifiedDashboard() {
         </div>
       )}
     </div>
-  )
+  );
 }

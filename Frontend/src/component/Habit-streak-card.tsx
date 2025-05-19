@@ -1,16 +1,18 @@
-import { CalendarDays, Clock, TrendingUp, Target } from "lucide-react"
-import { motion } from "framer-motion"
+import { CalendarDays, Clock, TrendingUp, Target } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface HabitStreakCardProps {
-  habitName: string
-  streak: number
-  last7CheckInCount: number
-  checkInDates?: string[]
-  quote?: string
-  frequency?: string
-  duration?: number
-  goal?: string
-  onViewCalendar: () => void
+  habitName: string;
+  streak: number;
+  last7CheckInCount: number;
+  checkInDates?: string[];
+  quote?: string;
+  frequency?: string;
+  duration?: number;
+  goal?: string;
+  suggestedTarget?: string;
+  expertiselevel?: string;
+  onViewCalendar: () => void;
 }
 
 export function HabitStreakCard({
@@ -22,19 +24,21 @@ export function HabitStreakCard({
   frequency = "daily",
   duration = 1,
   goal = "",
+  suggestedTarget,
+  expertiselevel,
   onViewCalendar,
 }: HabitStreakCardProps) {
   // Calculate the last 7 days for the mini calendar
   const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date()
-    date.setDate(date.getDate() - (6 - i))
-    return date.toISOString().split("T")[0]
-  })
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    return date.toISOString().split("T")[0];
+  });
 
   // Format frequency for display
   const formatFrequency = (freq: string) => {
-    return freq.charAt(0).toUpperCase() + freq.slice(1)
-  }
+    return freq.charAt(0).toUpperCase() + freq.slice(1);
+  };
 
   return (
     <motion.div
@@ -46,6 +50,9 @@ export function HabitStreakCard({
     >
       <div className="flex-1">
         <h3 className="text-xl font-bold text-[#c9d1d9] mb-2">{habitName}</h3>
+        <h3 className="text-xl font-bold text-[#c9d1d9] mb-2">
+          {expertiselevel}
+        </h3>
 
         {goal && (
           <div className="flex items-center gap-1 text-sm text-[#8b949e] mb-3">
@@ -72,32 +79,45 @@ export function HabitStreakCard({
           </div>
           <div className="flex items-center gap-1">
             <TrendingUp className="h-4 w-4 text-[#58a6ff]" />
-            <span className="text-sm text-[#8b949e]">{last7CheckInCount}/7 days this week</span>
+            <span className="text-sm text-[#8b949e]">
+              {last7CheckInCount}/7 days this week
+            </span>
           </div>
         </div>
 
         <div className="flex gap-1 mb-4">
           {last7Days.map((day, index) => {
-            const isCheckedIn = checkInDates.includes(day)
+            const isCheckedIn = checkInDates.includes(day);
             return (
               <div
                 key={index}
                 className={`flex-1 aspect-square rounded-md flex items-center justify-center text-xs font-medium ${
-                  isCheckedIn ? "bg-[#58a6ff] text-[#0d1117]" : "bg-[#1f2937] text-[#8b949e]"
+                  isCheckedIn
+                    ? "bg-[#58a6ff] text-[#0d1117]"
+                    : "bg-[#1f2937] text-[#8b949e]"
                 }`}
               >
                 {new Date(day).getDate()}
               </div>
-            )
+            );
           })}
         </div>
 
         {quote && (
           <div className="mt-auto">
-            <div className="text-xs text-[#8b949e] italic border-l-2 border-[#58a6ff] pl-2">"{quote}"</div>
+            <div className="text-xs text-[#8b949e] italic border-l-2 border-[#58a6ff] pl-2">
+              "{quote}"
+            </div>
+          </div>
+        )}
+        {suggestedTarget && (
+          <div className="mt-auto">
+            <div className="text-xs text-[#8b949e] italic border-l-2 border-[#58a6ff] pl-2">
+              "{suggestedTarget}"
+            </div>
           </div>
         )}
       </div>
     </motion.div>
-  )
+  );
 }

@@ -18,7 +18,9 @@ export const getHabit=async(req:Request,res:Response)=>{
                 description:true,
                 id:true,
                 frequency:true,
-                duration:true
+                duration:true,
+                goal:true,
+                expertiselevel:true
 
             }
         })
