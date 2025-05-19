@@ -4,7 +4,7 @@ import { prisma } from "../db/db";
 
 export const addCoins=async(req:Request,res:Response)=>{
     try {
-        const COIN_REWARD=5
+        const COIN_REWARD=2
         const user=(req as any).user
         if (!user || !user.id) {
             res.status(401).json({ message: "Unauthorized access" });

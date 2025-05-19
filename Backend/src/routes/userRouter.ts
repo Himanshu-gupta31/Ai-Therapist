@@ -3,6 +3,7 @@ import {logOut, signin, signup, VerifyUser}  from "../controllers/user.controlle
 import googleLogin from "../controllers/authController";
 import { VerifyJWT } from "../middlewares/auth.middleware";
 import { addCoins } from "../controllers/addCoins";
+import { getAllCoins } from "../controllers/fetchCoins";
 
 const router=Router();
 
@@ -13,5 +14,5 @@ router.route("/google").get(googleLogin)
 router.route("/logout").post(logOut)
 router.route("/verify").get(VerifyJWT,VerifyUser)
 router.route("/coins/:habitId").post(VerifyJWT,addCoins)
-
+router.route("/getcoins").get(VerifyJWT,getAllCoins)
 export default router
