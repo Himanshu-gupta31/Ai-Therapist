@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button"
-import { motion } from "framer-motion"
-import { Calendar, CheckCircle, TrendingUp } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Calendar, CheckCircle, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function HomeSection() {
   return (
@@ -13,36 +13,39 @@ function HomeSection() {
           <div className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-linear-to-r from-blue-400/10 to-blue-300/5 blur-[80px]" />
         </div>
 
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6 }} 
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
           className="text-white text-5xl font-bold z-10"
         >
-          Build Better Habits,<br />
+          Build Better Habits,
+          <br />
           <span className="text-blue-500">Transform Your Life</span>
         </motion.h1>
 
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.3, duration: 0.6 }} 
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
           className="text-white mt-4 max-w-xl z-10"
         >
-          Track, analyze, and improve your daily habits with our intuitive platform designed to help you achieve your goals.
+          Track, analyze, and improve your daily habits with our intuitive
+          platform designed to help you achieve your goals.
         </motion.p>
 
-        <motion.div 
-          className="flex gap-4 mt-8 z-10 flex-wrap justify-center" 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
+        <motion.div
+          className="flex gap-4 mt-8 z-10 flex-wrap justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.6 }}
         >
           <Link to="/signup">
-          <Button className="bg-blue-700 cursor-pointer">Get Started</Button>
+            <Button className="bg-blue-700 cursor-pointer">Get Started</Button>
           </Link>
-          <Button className="bg-white text-blue-400 cursor-pointer">See How it Works //TODO:
-          <TrendingUp className="h-8 w-8 text-blue-500" />
+          <Button className="bg-white text-blue-400 cursor-pointer">
+            See How it Works :
+            <TrendingUp className="h-8 w-8 text-blue-500" />
           </Button>
         </motion.div>
       </div>
@@ -60,8 +63,8 @@ function HomeSection() {
               </div>
               <h3 className="text-xl font-bold mb-4">Habit Tracking</h3>
               <p className="text-gray-400">
-                Easily track your daily habits with our intuitive interface. Set goals and monitor your progress over
-                time.
+                Easily track your daily habits with our intuitive interface. Set
+                goals and monitor your progress over time.
               </p>
             </div>
 
@@ -71,7 +74,8 @@ function HomeSection() {
               </div>
               <h3 className="text-xl font-bold mb-4">Insightful Analytics</h3>
               <p className="text-gray-400">
-                Gain valuable insights with detailed analytics that help you understand your behavior patterns.
+                Gain valuable insights with detailed analytics that help you
+                understand your behavior patterns.
               </p>
             </div>
 
@@ -81,14 +85,15 @@ function HomeSection() {
               </div>
               <h3 className="text-xl font-bold mb-4">Smart Reminders</h3>
               <p className="text-gray-400">
-                Never miss a habit with customizable reminders that adapt to your schedule and preferences.
+                Never miss a habit with customizable reminders that adapt to
+                your schedule and preferences.
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default HomeSection
+export default HomeSection;

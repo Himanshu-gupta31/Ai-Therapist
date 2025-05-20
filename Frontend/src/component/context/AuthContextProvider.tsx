@@ -1,4 +1,4 @@
-import  { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import AuthContext from "./AuthContext";
 import { newRequest } from "@/utils/request";
 
@@ -8,18 +8,19 @@ type AuthContextProviderProps = {
 
 const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const [auth, setAuth] = useState<boolean>(false);
-
   const handleAuth = async () => {
     try {
       const response = await newRequest.get("/users/verify");
       setAuth(response.status === 200);
     } catch (error) {
       setAuth(false);
+    } finally {
+      // setLoading(false);
     }
   };
 
   useEffect(() => {
-    handleAuth(); 
+    handleAuth();
   }, []);
 
   return (
