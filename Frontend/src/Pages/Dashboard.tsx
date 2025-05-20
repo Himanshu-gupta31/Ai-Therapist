@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   Clock,
   CirclePlus,
@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { HabitStreakCard } from "@/component/Habit-streak-card";
 import { useNavigate } from "react-router-dom";
-
+import AuthContext from "@/component/context/AuthContext";
 
 interface Habit {
   habitName: string;
@@ -53,6 +53,16 @@ interface ProgressiveTargetResponse {
   expertiselevel: string;
 }
 export default function UnifiedDashboard() {
+  const navigate = useNavigate();
+
+  const { auth } = useContext(AuthContext);
+  useEffect(() => {
+    if (!auth) {
+      navigate("/signin");
+    } else {
+      navigate("/dashboard");
+    }
+  }, [auth]);
   // Habit state
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitName, setHabitName] = useState("");
@@ -118,7 +128,12 @@ export default function UnifiedDashboard() {
       // Fetch progressive targets and update habits for every habit
       const updatedHabits = await Promise.all(
         fetchedHabits.map(async (habit: Habit) => {
-          if (habit.id && habit.habitName && habit.goal) {
+          if (
+            habit.id &&
+            habit.habitName &&
+            habit.goal &&
+            habit.expertiselevel === "Beginner"
+          ) {
             try {
               const target = await fetchProgressiveTarget(
                 habit.id,
@@ -376,7 +391,7 @@ export default function UnifiedDashboard() {
     setCompletedHabit(updatedHabits);
     localStorage.setItem("completedHabits", JSON.stringify(updatedHabits));
   };
-  
+
   // Select a suggestion
   const selectSuggestion = (suggestion: string) => {
     setHabitName(suggestion);
@@ -466,19 +481,7 @@ export default function UnifiedDashboard() {
     }
   }, []);
 
-  const navigate = useNavigate();
-
-  // const {auth}=useContext(AuthContext)
-  // useEffect(()=>{
-  //   if(!auth){
-  //     navigate("/signin")
-  //   }else{
-  //     navigate("/dashboard")
-  //   }
-  // },[auth])
-
   //add Coins
-
 
   const addCoins = async (habitId: string) => {
     try {
@@ -496,7 +499,7 @@ export default function UnifiedDashboard() {
         }
       }
     };
-  
+
     updateCoins();
   }, [habits.map((h) => h.lastCheckIn).join(",")]);
 
