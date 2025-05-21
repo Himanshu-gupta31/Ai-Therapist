@@ -14,21 +14,20 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
+  id            String         @id @default(uuid())
+  email         String         @unique
   password      String
   name          String? // Optional: add name field
   token         String?
   refresh_token String?
   access_token  String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   authType      String?
-  screenTime    Int?     @default(0)
-  coins         Int      @default(0)
+  totalCoins   Int            @default(0)
   habits        Habit[]
-
-  dailyPlanner DailyPlanner[]
+  coins         Coins[]
+  dailyPlanner  DailyPlanner[]
 }
 
 model Habit {
@@ -51,6 +50,7 @@ model Habit {
   suggestedTarget String?
   quote           Quote?        @relation(fields: [quoteId], references: [id])
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coins           Coins[]
   createdAt       DateTime      @default(now())
 }
 
@@ -76,6 +76,17 @@ model Quote {
   type      QuoteType
   habits    Habit[]
   createdAt DateTime  @default(now())
+}
+
+model Coins {
+  id          String   @id @default(uuid())
+  userId      String
+  amount      Int
+  dateAwarded DateTime @default(now())
+  habitId     String
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum QuoteType {
