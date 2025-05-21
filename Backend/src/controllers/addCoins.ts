@@ -42,9 +42,10 @@ export const addCoins=async(res:Response,req:Request)=>{
                 }
             });
             if (alreadyAwarded) {
-                return res.status(409).json({ message: "Coins already awarded today for this habit" });
+                 res.status(409).json({ message: "Coins already awarded today for this habit" });
+                 return
             }
-            
+
         }
     } catch (error) {
         
