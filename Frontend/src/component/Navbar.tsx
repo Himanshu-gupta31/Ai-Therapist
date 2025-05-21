@@ -18,7 +18,7 @@ function Navbar() {
   const getCoins = async () => {
     try {
       const response = await newRequest.get("/users/getcoins")
-      setCoins(response.data.allCoins.coins)
+      setCoins(response.data.allCoins.totalCoins)
     } catch (error) {
       console.log("Error")
     }

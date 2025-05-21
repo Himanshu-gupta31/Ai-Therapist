@@ -492,20 +492,17 @@ export default function UnifiedDashboard() {
     }
   };
   useEffect(() => {
-    const updateCoins = async () => {
+    const updateAllCoins = async () => {
       for (const habit of habits) {
         if (habit.lastCheckIn && habit.id) {
-          const lastCheckInDate = new Date(habit.lastCheckIn).toISOString().split("T")[0];
-          const today = new Date().toISOString().split("T")[0];
-  
-          if (lastCheckInDate === today && !completedHabit[habit.id]) {
-            await addCoins(habit.id);
-          }
+          await addCoins(habit.id); // Await to avoid race conditions
         }
       }
     };
   
-    updateCoins();
+    if (habits.length > 0) {
+      updateAllCoins();
+    }
   }, [habits]);
 
   // 1. Fix quotes not loading on page mount by adding a separate useEffect

@@ -2,7 +2,7 @@ import { Response,Request } from "express";
 import { prisma } from "../db/db";
 
 
-export const addCoins=async(res:Response,req:Request)=>{
+export const addCoins=async(req:Request,res:Response)=>{  //Why does the req,res is correct but not res,req
     try {
         const COIN_REWARD = 2;
         const user = (req as any).user;
@@ -45,9 +45,33 @@ export const addCoins=async(res:Response,req:Request)=>{
                  res.status(409).json({ message: "Coins already awarded today for this habit" });
                  return
             }
-
+            await prisma.coins.create({
+                data:{
+                    userId:user.id,
+                    habitId:habitId,
+                    amount:COIN_REWARD
+                }
+            })
+            const allCoins=await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                  totalCoins: {
+                    increment: COIN_REWARD,
+                  },
+                },
+                select:{
+                    totalCoins:true,
+                    email:true
+                }
+              });
+               res.status(200).json({ message: "Coins added successfully",allCoins });
+               return
         }
+            
+
     } catch (error) {
-        
+        console.error("Add coins error:", error);
+     res.status(500).json({ message: "Internal server error" });
+
     }
 }

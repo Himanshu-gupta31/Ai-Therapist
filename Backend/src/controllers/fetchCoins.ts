@@ -12,8 +12,8 @@ export const getAllCoins=async(req:Request,res:Response)=>{
             where:{
                 id:user.id
             },select:{
-                coins:true,
-                email:true
+                email:true,
+                totalCoins:true
             }
          })
          res.status(200).json({message:"Fetched All Coins succesfully",allCoins})
