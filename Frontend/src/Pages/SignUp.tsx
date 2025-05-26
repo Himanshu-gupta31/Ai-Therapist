@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GoogleLogin from '../component/GoogleLogin' 
 import { newRequest } from '@/utils/request'
+import AuthContext from '@/component/context/AuthContext'
 
 function SignUp() {
   const [email, setEmail] = useState('')
@@ -9,6 +10,7 @@ function SignUp() {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState("")
   const navigate = useNavigate()
+  const {handleAuth,auth}=useContext(AuthContext)
 
   const Signup = async () => {
     setLoading(true)
@@ -17,6 +19,7 @@ function SignUp() {
         email: email,
         password: password
       })
+      await handleAuth()
       navigate("/dashboard")
     } catch (error: any) {
       console.error("Error signing up!", error);
@@ -34,7 +37,13 @@ function SignUp() {
     e.preventDefault()
     Signup()
   }
-
+  useEffect(() => {
+        if (!auth) {
+          navigate("/signin");
+        } else {
+          navigate("/dashboard");
+        }
+      }, [auth]);
   return (
     <div className="flex min-h-screen justify-center items-center bg-black">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-md border-2 border-blue-400">

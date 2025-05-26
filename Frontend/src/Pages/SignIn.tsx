@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import GoogleLogin from "../component/GoogleLogin";
 import { newRequest } from "@/utils/request";
+import AuthContext from "@/component/context/AuthContext";
 
 function SignIn() {
+  const {handleAuth,auth}=useContext(AuthContext)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -17,6 +19,7 @@ function SignIn() {
         email: email,
         password: password,
       });
+      await handleAuth()
       navigate("/dashboard"); // Redirect after successful login
     } catch (error) {
       console.error("Error signing in", error);
@@ -30,6 +33,13 @@ function SignIn() {
     e.preventDefault();
     SignIn();
   };
+  useEffect(() => {
+      if (!auth) {
+        navigate("/signin");
+      } else {
+        navigate("/dashboard");
+      }
+    }, [auth]);
 
   return (
     <div className="flex min-h-screen justify-center items-center bg-black">
