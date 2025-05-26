@@ -78,6 +78,7 @@ export default function UnifiedDashboard() {
   const [completedHabit, setCompletedHabit] = useState<Record<string, boolean>>(
     {}
   );
+  const [startingTime,setStartingTime]=useState("")
   const [viewingCalendarForHabit, setViewingCalendarForHabit] = useState<
     string | null
   >(null);
@@ -348,6 +349,7 @@ export default function UnifiedDashboard() {
         duration,
         expertise,
         goal,
+        startingTime
       });
       setHabitName("");
       setDescription("");
@@ -358,8 +360,14 @@ export default function UnifiedDashboard() {
       setExpertise("Beginner");
       setError("");
       setGoal("");
+      setStartingTime("")
       await fetchHabits();
       await fetchHabitStreaks();
+      await newRequest.post("google/calendar/habit-event",{
+        habitName,
+        startingTime,
+        duration
+      })
     } catch (error) {
       setError("Failed to add habit");
       console.error("Error adding habit:", error);
@@ -883,7 +891,21 @@ export default function UnifiedDashboard() {
                   <option value="monthly">Monthly</option>
                 </select>
               </div>
-
+              {/* Starting time */}
+              <div>
+                <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
+                  Starting Time
+                </label>
+                <input
+                  type="time"
+                  value={startingTime}
+                  onChange={(e) => setStartingTime(e.target.value)}
+                  placeholder="Enter duration in days"
+                  min="1"
+                  max="24"
+                  className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-md focus:outline-none focus:ring-2 focus:ring-[#58a6ff] focus:border-transparent text-[#c9d1d9]"
+                />
+              </div>
               {/* Duration */}
               <div>
                 <label className="block text-sm font-medium text-[#c9d1d9] mb-1">
