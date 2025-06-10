@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      PORT: 8000
+      DATABASE_URL: postgres://Postgress_owner:npg_LoyQld7Jp9Ew@db:5432/Postgress?sslmode=disable
+      CORS_ORIGIN: http://localhost:5173
+      JWT_SECRET: d0c04183beba9dbf862b95d8c4db1fd25fa397876aeab68afa5fb8ec8951fbc8
+      TOKEN_EXPIRY: 1d
+      GOOGLE_CLIENT_ID: 827631968097-k3kjnva2p203242qc75oapuj0bqcegh6.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      GEMINI_API_KEY: AIzaSyCIY_5JnfIdrGuVyZEwPUYu9m5btIdqSh8
+    ports:
+      - "8000:8000"
+    command: ["npm", "run", "dev"]
