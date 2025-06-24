@@ -32,6 +32,9 @@ const dailyPlanRoute_1 = __importDefault(require("./routes/dailyPlanRoute"));
 const googleRoute_1 = __importDefault(require("./routes/googleRoute"));
 const quoteRoute_1 = __importDefault(require("./routes/quoteRoute"));
 // Router Declaration
+app.get("/", (req, res) => {
+    res.send("Welcome to Habit Tracker API");
+});
 app.use("/api/v1/users", userRouter_1.default);
 app.use("/api/v1/habit", habitRoute_1.default);
 app.use("/api/v1/chat", chatRoute_1.default);
