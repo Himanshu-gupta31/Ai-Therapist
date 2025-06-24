@@ -33,6 +33,9 @@ import dailyPlanRoute from './routes/dailyPlanRoute'
 import googleRoute from './routes/googleRoute'
 import quotesRoute from "./routes/quoteRoute"
 // Router Declaration
+app.get("/", (req, res) => {
+  res.send("Welcome to Habit Tracker API");
+});
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/habit",habitRouter)
 app.use("/api/v1/chat",chatRouter)
