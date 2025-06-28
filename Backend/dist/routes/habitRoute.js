@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const addHabit_1 = require("../controllers/addHabit");
+const getHabit_1 = require("../controllers/getHabit");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const deleteHabit_1 = require("../controllers/deleteHabit");
+const streakController_1 = require("../controllers/streakController");
+const router = (0, express_1.Router)();
+router.route("/addHabit").post(auth_middleware_1.VerifyJWT, addHabit_1.addHabit);
+router.route("/getHabit").get(auth_middleware_1.VerifyJWT, getHabit_1.getHabit);
+router.route("/deleteHabit/:id").delete(auth_middleware_1.VerifyJWT, deleteHabit_1.deleteTodo);
+router.route("/streak").get(auth_middleware_1.VerifyJWT, streakController_1.getStreak);
+router.route("/checkin/:habitId").post(auth_middleware_1.VerifyJWT, streakController_1.updatedStreak);
+exports.default = router;

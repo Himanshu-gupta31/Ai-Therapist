@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const googleCalendar_1 = require("../controllers/googleCalendar");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const googleHabitCalendar_1 = require("../controllers/googleHabitCalendar");
+const router = (0, express_1.Router)();
+router.route("/calendar/create-event").post(auth_middleware_1.VerifyJWT, googleCalendar_1.createCalendar);
+router.route("/calendar/habit-event").post(auth_middleware_1.VerifyJWT, googleHabitCalendar_1.createCalendarHabit);
+exports.default = router;

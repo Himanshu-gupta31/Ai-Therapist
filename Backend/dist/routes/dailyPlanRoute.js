@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const addDailyPlanner_1 = require("../controllers/addDailyPlanner");
+const fetchDailyPlan_1 = require("../controllers/fetchDailyPlan");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const deletePlan_1 = require("../controllers/deletePlan");
+const router = (0, express_1.Router)();
+router.route("/addplan").post(auth_middleware_1.VerifyJWT, addDailyPlanner_1.addDailyPlan);
+router.route("/fetchplan").get(auth_middleware_1.VerifyJWT, fetchDailyPlan_1.fetchDailyPlan);
+router.route("/deleteplan/:id").delete(auth_middleware_1.VerifyJWT, deletePlan_1.deletePlan);
+exports.default = router;
