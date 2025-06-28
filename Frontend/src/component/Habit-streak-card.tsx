@@ -1,5 +1,3 @@
-"use client";
-
 import { CalendarDays, Clock, TrendingUp, Target } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -29,7 +27,6 @@ export function HabitStreakCard({
   goal = "",
   suggestedTarget,
   expertiselevel,
-  onViewCalendar,
 }: HabitStreakCardProps) {
   const [showAiSuggestion, setShowAiSuggestion] = useState(false);
 
