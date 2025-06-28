@@ -1,5 +1,4 @@
 import type React from "react";
-
 import { useState } from "react";
 import { newRequest } from "@/utils/request";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,6 @@ import { CalendarIcon, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "@/component/context/AuthContext";
 
 export default function DailyPlanForm() {
   // Individual state for each input field
